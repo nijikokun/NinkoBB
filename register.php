@@ -1,12 +1,14 @@
 <?php
-/* riotpix
+/**
+ * register.php
  * 
- *  @version: 1.0
- *	@original author: Kingtaco
- *	@rewritten by: Nijiko
- *	@copyright: 2009
- *
- */ 
+ * Sign up form!
+ * @author Nijiko Yonskai <me@nijikokun.com>
+ * @version 1.2
+ * @copyright (c) 2010 ANIGAIKU
+ * @package ninko
+ */
+ 
 include("include/common.php");
 
 // Are they already logged in?
