@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 		
 		// Default data
 		$db_schema = array();
-		$db_schema['config'] = "INSERT INTO `config` (`id`, `key`, `value`) VALUES (1, 'site_name', 'ninko'),(2, 'admin_email', 'your@email.com'),(3, 'admin_symbol', '!'),(4, 'url_path', 'http://mysite.com/riotpix'),(5, 'path', ''),(6, 'allow_cookies', '1'),(7, 'cookie_domain', '/'),(8, 'cookie_save', '1327713948'),(9, 'min_name_length', '3'),(10, 'max_name_length', '100'),(11, 'email_validation', ''),(12, 'email_sender', 'noreply@email.com'),(13, 'email_subject', 'Action required to activate your account at {site_name}!'),(14, 'email_message', 'Hello {username}!\r\nYou recently signed up at ninko, this email is to validate that the email you used is a real email address. \r\n\r\nClick on the following link to validate your account: {link}\r\n----------------------------------------------------------------------------\r\nThis email was sent automatically. Please do not respond to this for support or help Thank you and have a nice day! From {site_name}'),(15, 'age_validation', ''),(16, 'avatar_max_size', '100'),(17, 'avatar_max_width', '100'),(18, 'avatar_max_height', '100'),(19, 'avatar_upload_path', 'avatars/'),(20, 'avatar_folder_name', 'avatars'),(21, 'avatar_use', 'username'),(22, 'avatar_md5_use', '1'),(23, 'default_avatar', 'default'),(24, 'default_avatar_type', '.jpg'),(25, 'user_online_timeout', '30'),(26, 'messages_per_page', '20'),(27, 'messages_per_topic', '13'),(28, 'subject_minimum_length', '3'),(29, 'subject_max_length', '32')(28, 'message_minimum_length', '3'),(29, 'message_max_length', '500'),(30, 'signature_allow', '1'),(31, 'signature_minimum_length', '3'),(32, 'signature_max_length', '500'),(33, 'post_topic_time_limit', '30'),(34, 'post_reply_time_limit', '10'),(35, 'show_first_post', '1'),(36, 'allow_quick_reply', '1'),(37, 'max_length', '32'),(38, 'slashes', ''),(39, 'date_format', 'F jS, Y, g:i a'),(40, 'timechange', '-5'),(42, 'version', '1.2'),(43, 'bbcode', '1'),(44, 'bbcode_url', '1'),(45, 'bbcode_image', '1'),(46 , 'language', 'en'), (47 , 'theme', 'default');";
+		$db_schema['config'] = "INSERT INTO `config` (`id`, `key`, `value`) VALUES (1, 'site_name', 'ninko'),(NULL, 'admin_email', 'your@email.com'),(NULL, 'admin_symbol', '!'),(NULL, 'url_path', 'http://mysite.com/ninkobb'),(NULL, 'path', ''),(NULL, 'allow_cookies', '1'),(NULL, 'cookie_domain', '/'),(NULL, 'cookie_save', '1327713948'),(NULL, 'min_name_length', '3'),(NULL, 'max_name_length', '100'),(NULL, 'email_validation', ''),(NULL, 'email_sender', 'noreply@email.com'),(NULL, 'email_subject', 'Action required to activate your account at {site_name}!'),(NULL, 'email_message', 'Hello {username}!\r\nYou recently signed up at ninko, this email is to validate that the email you used is a real email address. \r\n\r\nClick on the following link to validate your account: {link}\r\n----------------------------------------------------------------------------\r\nThis email was sent automatically. Please do not respond to this for support or help Thank you and have a nice day! From {site_name}'),(NULL, 'age_validation', ''),(NULL, 'avatar_max_size', '100'),(NULL, 'avatar_max_width', '100'),(NULL, 'avatar_max_height', '100'),(NULL, 'avatar_upload_path', 'avatars/'),(NULL, 'avatar_folder_name', 'avatars'),(NULL, 'avatar_use', 'username'),(NULL, 'avatar_md5_use', '1'),(NULL, 'default_avatar', 'default'),(NULL, 'default_avatar_type', '.jpg'),(NULL, 'user_online_timeout', '30'),(NULL, 'messages_per_page', '20'),(NULL, 'messages_per_topic', '13'),(NULL, 'subject_minimum_length', '3'),(NULL, 'subject_max_length', '32'),(NULL, 'message_minimum_length', '3'),(NULL, 'message_max_length', '500'),(NULL, 'signature_allow', '1'),(NULL, 'signature_minimum_length', '3'),(NULL, 'signature_max_length', '500'),(NULL, 'post_topic_time_limit', '30'),(NULL, 'post_reply_time_limit', '10'),(NULL, 'show_first_post', '1'),(NULL, 'allow_quick_reply', '1'),(NULL, 'max_length', '32'),(NULL, 'slashes', ''),(NULL, 'date_format', 'F jS, Y, g:i a'),(NULL, 'timechange', '-5'),(NULL, 'version', '1.2'),(NULL, 'bbcode', '1'),(NULL, 'bbcode_url', '1'),(NULL, 'bbcode_image', '1'),(46 , 'language', 'en'), (47 , 'theme', 'default');";
 		$db_schema['plugins'] = "INSERT INTO `plugins` (`name`) VALUES ('guest_counter'),('captcha');";
 		
 		echo "<h2>Inserting Data...</h2><ul>";
@@ -330,8 +330,8 @@ case 5: ?>
 	if (file_exists("../include/database.php"))
 	{
 		require_once('../include/database.php');
-		$cid = mysql_connect($config['host'], $config['user'], $config['pass']);
-		mysql_select_db($config['db']);
+		$cid = mysql_connect($config['host'], $config['user'], $config['pass']) or die(mysql_error());
+		mysql_select_db($config['db']) or die(mysql_error());
 		
 		$query = array();
 		$query['forum name'] = "UPDATE `config` SET `value` = '{$_POST['site_name']}' WHERE `key`='site_name' LIMIT 1";
@@ -341,7 +341,7 @@ case 5: ?>
 		  
 		foreach($query as $item => $sql)
 		{
-			mysql_query($sql); 
+			mysql_query($sql) or die(mysql_error()); 
 			echo "<li>Updated <code>{$item}</code></li>";
 		}
 		  
