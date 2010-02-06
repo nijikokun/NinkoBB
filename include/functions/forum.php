@@ -315,7 +315,7 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 	// Pre-Parse
 	$topic = clean_input(strip_repeat($topic));
 	$content = htmlentities($content);
-	$content = field_clean($content, true);
+	$content = field_clean(stripslashes($content), true);
 	
 	if($_SESSION['logged_in'])
 	{
