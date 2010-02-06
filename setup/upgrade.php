@@ -105,7 +105,7 @@ switch($step)
 ?>
 <p>Hmm.. Had some trouble selecting what version of NinkoBB you are upgrading from..</p>
 
-<?php if(isset($version_from_config){ ?>
+<?php if(isset($version_from_config)){ ?>
 <p>
 	Your configuration says you are on: <a href="setup.php?step=1&v=<?php $version_from_config; ?>"><b><?php $version_from_config; ?></a></b>.<br /><br />
 	If this is incorrect select your version below:
