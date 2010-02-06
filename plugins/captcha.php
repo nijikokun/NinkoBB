@@ -147,7 +147,7 @@ function insert_captcha()
 
 /**
  * Check to see if user entered the correct data
- * @global array
+ * @global string
  */
 function check_captcha()
 {
