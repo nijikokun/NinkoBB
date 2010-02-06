@@ -121,8 +121,7 @@ function captcha()
 }
 
 /**
- * Cleans up the guest array
- * @global array
+ * Insert captcha into registration table
  * @global array
  */
 function insert_captcha()
@@ -146,6 +145,10 @@ function insert_captcha()
 	echo '</table>';
 }
 
+/**
+ * Check to see if user entered the correct data
+ * @global array
+ */
 function check_captcha()
 {
 	global $error;
