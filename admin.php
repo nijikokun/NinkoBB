@@ -80,6 +80,8 @@ else if($action == "settings")
 		default: $area = "main"; break;
 	}
 	
+	load_hook('admin_settings_area');
+	
 	if(isset($_POST['settings']))
 	{
 		// Check for the true / false boxes
