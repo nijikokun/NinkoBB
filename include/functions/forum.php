@@ -719,7 +719,7 @@ function parse($text, $bbcode = true)
 		// Quoting
 		if (strpos($text, 'quote') !== false)
 		{
-			$text = str_replace('[quote]', '<blockquote><div class="quotebox">', $text);
+			$text = str_replace('[quote]', '<blockquote><div class="quotebox"><div>', $text);
 			$text = preg_replace('/\[quote=(&quot;|"|\'|)(.*)\\1\]/seU', '"<blockquote><div class=\"quotebox\"><h4>".str_replace(array(\'[\', \'\\"\'), array(\'&#91;\', \'"\'), \'$2\')." wrote:</h4><div class=\"text\">"', $text);
 			$text = preg_replace('/\[\/quote\](\s *)?/i', '</div></div></blockquote>', $text);
 		}
