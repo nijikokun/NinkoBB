@@ -4,7 +4,7 @@
  * 
  * Admin control panel allowing users to manage the forum
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.1
+ * @version 1.2
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @subpackage setup
@@ -165,7 +165,7 @@ case 2:
 			" * database.php\n",
 			" * \n",
 			" * Controls the database connection values\n",
-			" * @version 1.1\n",
+			" * @version 1.2\n",
 			" * @copyright (c) 2010 ANIGAIKU\n",
 			" * @package ninko\n",
 			" */\n\n",

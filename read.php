@@ -4,7 +4,7 @@
  * 
  * Displays topics and posts based on passed url variables, and allows quick posting if enabled.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.1
+ * @version 1.2
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  */

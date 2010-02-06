@@ -4,7 +4,8 @@
  * 
  * Controls inclusions, configuration, and common data. The base file.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.1
+ * @version 1.2
+ * @package ninko
  */
  
 /**
@@ -57,7 +58,7 @@ while($row = mysql_fetch_array($result))
 }
 
 // Check version
-if($config['version'] != '1.1')
+if($config['version'] != '1.2')
 {
 	// send to upgrade
 	header('location: setup/upgrade.php?v=' . $config['version']);

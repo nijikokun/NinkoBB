@@ -4,7 +4,7 @@
  * 
  * Attempts to connect to the database using variables defined in: database.php
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.1
+ * @version 1.2
  * @package ninko
  */
 	

@@ -4,7 +4,7 @@
  * 
  * English / English Translation of Ninko
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.1
+ * @version 1.2
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @language English

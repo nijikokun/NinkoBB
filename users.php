@@ -4,7 +4,7 @@
  * 
  * Allows editing of user settings / accounts, and viewing of other users.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.1
+ * @version 1.2
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  */
