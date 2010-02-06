@@ -35,7 +35,7 @@ $start = ($page * $config['messages_per_topic']) + 1;
 include($config['template_path'] . "header.php");
 
 // Can we do admin actions?
-if($_SESSION['is_admin'] || $_SESSION['is_moderator'])
+if($_SESSION['admin'] || $_SESSION['moderator'])
 {
 	if(isset($_GET['delete_topic']))
 	{

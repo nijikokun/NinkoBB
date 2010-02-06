@@ -40,12 +40,12 @@
 <table border="0" cellspacing="0" cellpadding="5" class="form">
 	<tr>
 		<td valign="top" class="features"><?php echo lang('user_features'); ?></td>
-<?php if(($_SESSION['is_admin'] || $_SESSION['moderator']) && !$reply && !$post['reply']){ ?>
-        <td valign="top" class="features"><?php echo lang('admin_features'); ?></td>
+<?php if(($_SESSION['admin'] || $_SESSION['moderator']) && !$reply && !$post['reply']){ ?>
+        <td valign="top" class="features"><?php echo lang('extra_features'); ?></td>
 <?php } ?>
 	</tr>
     <tr>
-        <td valign="top"<?php if((!$_SESSION['is_admin'] || !$_SESSION['moderator']) && $reply){ ?> colspan="2" <?php } ?> class="form">
+        <td valign="top"<?php if((!$_SESSION['admin'] || !$_SESSION['moderator']) && $reply){ ?> colspan="2" <?php } ?> class="form">
             <div>
                 <label for="preview">
                     <input id="preview" type="checkbox" name="preview" value="1" class="border" /> 
@@ -53,7 +53,7 @@
                 </label>
             </div>
         </td>
-<?php if(($_SESSION['is_admin'] || $_SESSION['moderator']) && !$reply && !$post['reply']){ ?>
+<?php if(($_SESSION['admin'] || $_SESSION['moderator']) && !$reply && !$post['reply']){ ?>
         <td valign="top" class="form">
             <div>
                 <label for="sticky">

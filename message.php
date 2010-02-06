@@ -19,7 +19,7 @@ include($config['template_path'] . "header.php");
 if(isset($_POST['post']))
 {
 	// Are we an admin?
-	if($_SESSION['is_admin'])
+	if($_SESSION['admin'] || $_SESSION['moderator'])
 	{
 		// Check to see if we are trying to sticky or close a topic
 		if($_POST['sticky'] == "on") { $sticky = 1; } else { $sticky = 0; }
@@ -70,7 +70,7 @@ if(isset($_POST['post']))
 else if(isset($_POST['edit']))
 {
 	// Are we an admin?
-	if($_SESSION['is_admin'] || $_SESSION['moderator'])
+	if($_SESSION['admin'] || $_SESSION['moderator'])
 	{
 		// Check to see if we are trying to sticky or close a topic
 		if($_POST['sticky'] == "on") { $sticky = 1; } else { $sticky = 0; }

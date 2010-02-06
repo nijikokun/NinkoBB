@@ -576,7 +576,7 @@ function update($id, $topic, $content, $sticky = false, $closed = false)
 			if(!is_string(length($content, $config['message_minimum_length'], $config['message_max_length'])))
 			{
 				// Check to see if the user is an admin and able to sticky / close the topic
-				if($_SESSION['is_admin'] || $_SESSION['moderator'])
+				if($_SESSION['admin'] || $_SESSION['moderator'])
 				{
 					// Sticky
 					$sticky = ($sticky) ? '1' : '0';

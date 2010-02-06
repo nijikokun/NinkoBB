@@ -36,12 +36,13 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 	td.grey									{ color: #808080; }
 
 /* HEADER */
-.header 									{ padding: 10px; border-bottom: 1px solid #E9E9E9; }
+.header 									{ padding: 10px; border-bottom: 1px solid #E9E9E9; background: #f2f2f2; }
 	.header .logo a 						{ font-family: Georgia; font-style: italic; font-weight: bold; font-size: 24px; color: #000; }
 	.header .logo a:hover 					{ text-decoration: none; }
 	
 /* NAVIGATION */
-.navigation 								{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; }
+.navigation 								{ background: #E9E9E9; padding: 10px; border-bottom: 1px solid #E9E9E9; }
+	.navigation a							{ color: #505050; }
 
 /* ERROR TABLES */
 .error										{ background: #FFFED5; padding: 10px; border-bottom: 1px solid #E9E9E9; }
@@ -50,32 +51,39 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 	
 /* TOPIC */
 .topic										{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; }
-	.topic .sticky							{ padding: 2px; width: 50px; display: inline-block; color: #aaa; text-align: center; font-weight: 700; }
-	.topic .closed							{ padding: 2px; margin-bottom: 4px; width: 50px; display: inline-block; color: #880000; text-align: center; font-weight: 700; }
-	.topic .url								{ font-weight: 700; font-size: 12px; }
+	.topic.alt								{ background: #fafafa; }
+	.topic .sticky							{ padding-left: 8px; color: #bbb; text-align: center; font-weight: 700; }
+	.topic .closed							{ padding-left: 8px; color: #bbb; text-align: center; font-weight: 700; }
+	.topic .url								{ font-family: Georgia; font-weight: 400; font-size: 16px; }
+	.topic .url a							{ color: #151515; }
 	.topic .creator,
-	.topic .last-poster						{ color: #A9AAB6; }
+	.topic .last-poster						{ color: #9A9A9A; }
 		.topic strong						{ color: #333333; }
+		.topic .username					{ font-weight: 400; }
 	.topic .details							{ color: #9A9A9A; }
-	.topic .item							{ margin-right: 10px; }
+	.topic .item							{ font-size: 10px; margin-right: 10px; }
+	.topic .posts							{ font-weight: bold; line-height: 24px; }
+	.topic .last							{ font-family: Georgia; font-style: italic; font-size: 11px; }
 	
 /* POST */
 .post										{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; }
 	.post .avatar							{ float: left; height: 50px; width: 50px; padding: 0px 10px; }
 	.post .date								{ font-weight: normal; color: #9A9A9A; }
 		.post dl							{ margin: 0px; padding: 0px; }
-		.post dt							{ margin-bottom: 5px; }
+		.post dt							{  }
 		.post dd							{ float: left; margin-left: 10px; }
 	.post .message							{ padding: 0px 15px; }
-		.codebox 							{ border: 1px solid #ccc; margin-bottom: 10px; }
+		.codebox 							{ min-width: 700px; max-width: 800px; margin: 5px auto; border: 1px solid #ccc; }
 			.codebox h4 					{ border-bottom: 1px solid #ccc; background: #fff; padding: 5px; margin: 0px; }
-			.codebox .scrollbox 			{ margin: 0; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; border-top: 0px; background: #fefefe; }
-			.codebox code 					{ font-size: 11px; }
+			.codebox .scrollbox 			{ margin: 0; border-top: 0px; background: #fefefe; }
+			.codebox pre 					{ width: 98%; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; margin: 5px; font-size: 11px; }
 		.quotebox 							{  }
+			blockquote						{ min-width: 700px; max-width: 800px; margin: 0px auto; padding: 5px; }
 			.quotebox h4 					{ border: 1px solid #ccc; background: #fff; padding: 5px; margin: 0px; }
 			.quotebox .text 				{ border: 1px solid #ccc; background: #fefefe; margin: 0; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; border-top: 0px;  }
 
 .subject									{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; font-weight: bold; font-size: 16px; }
+	.subject .subject						{ padding: 0px; border: none; font-family: Georgia; font-style: italic; font-size: 24px; }
 	.subject.sticky							{ background: #F2F2F2; color: #333; }
 	.subject.closed							{ background: #FFFED5; padding: 10px; border-bottom: 1px solid #E9E9E9; color: #A26F34; }
 	.subject .sticky						{ font-weight: 400; font-style: normal; font-size: 11px; color: #aaa; text-align: center; font-weight: 700; }
@@ -83,7 +91,9 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 	.subject .info							{ font-weight: 400; font-style: normal; font-size: 11px; }
 	
 /* TITLES */
-.title										{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; font-weight: bold; font-size: 13px; }
+.title										{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; font-family: Georgia; font-weight: bold; font-size: 13px; }
+	.title dt, .post						{ margin: 0px; }
+
 
 /* FORMS */
 .form										{ padding: 10px; }
@@ -91,7 +101,8 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 	.form .features							{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; }
 	
 /* Footer */
-.footer										{ background: #DCDCDC; padding: 10px; border-top: 1px solid #c9c9c9; }
+.footer										{ background: #f2f2f2; padding: 10px; border-top: 1px solid #e9e9e9; }
+	.footer a								{ color: #555; }
 
 /* Quick reply inputs */
 input.subject								{ width: 90%; background: #ffffff; }

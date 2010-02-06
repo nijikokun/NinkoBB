@@ -21,7 +21,7 @@ if(!$_SESSION['logged_in'])
 }
 
 // Not admin? Go home!
-if(!is_admin($user_data['username']))
+if(!$user_data['admin'])
 {
 	header('location: ' . $config['url_path']);
 }

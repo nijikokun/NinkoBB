@@ -82,13 +82,19 @@ else if(isset($login_cookie))
 		// Get the users data
 		$user_data = mysql_fetch_array($result);
 		
-		// Are they admin? if so what level?
-		if($user_data['admin'])
+		// What is this user classified as?
+		$type = type($user_data['username']);
+		
+		// Tell us what they are
+		switch($type)
 		{
-			$_SESSION['is_admin'] = true;
+			case 1: $_SESSION['admin'] = true; break;
+			case 2: $_SESSION['moderator'] = true; break;
+			case 3: $_SESSION['banned'] = true; break;
+			default: break;
 		}
 		
-		// Woo
+		// Update their session
 		$_SESSION['logged_in']  = true;
 		$_SESSION['user_id']	= $user_data['id'];
 		$_SESSION['user_name']	= $user_data['username'];

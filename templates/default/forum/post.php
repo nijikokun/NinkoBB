@@ -2,8 +2,9 @@
 <table width="50%" border="0" cellspacing="2" cellpadding="5" class="subject">
 	<tr>
 		<td colspan="2">
-			<?php echo stripslashes(htmlentities($post['subject'])); ?> 
+			<span class="subject"><?php echo stripslashes(htmlentities($post['subject'])); ?></span> 
 			<span class="info">(<?php echo forum_count($post['id']); ?> <?php echo lang('posts_c'); ?>)</span>
+			<?php if($pagination){ ?><span class="info">(<?php echo lang('pages'); ?> <?php echo $pagination; ?>)</span><?php } ?>
 <?php if($post['status']){ ?>
 			<br /><?php echo $post['status']; ?>
 <?php } ?>
@@ -47,7 +48,7 @@
             </dl>
         </td>
 		<td align="right" valign="top">
-<?php if($_SESSION['is_admin'] || $_SESSION['is_moderator']){ ?>
+<?php if($_SESSION['admin'] || $_SESSION['moderator']){ ?>
 <?php if($starter){ ?>
 			<a href="message.php?edit=<?php echo $post['id']; ?>"><?php echo lang('edit'); ?></a> - 
 			<a href="read.php?delete_topic=<?php echo $post['id']; ?>"><?php echo lang('delete'); ?></a> - 

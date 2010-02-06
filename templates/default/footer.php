@@ -15,7 +15,7 @@ if($pagination)
             <a name="bottom"></a>
             <a href="<?php echo $config['url_path']; ?>"><?php echo lang('home_c'); ?></a> | 
 <?php if($in_topic){ ?>
-    <?php if($closed && !$_SESSION['is_admin']){ ?>
+    <?php if($closed && (!$_SESSION['admin'] || !$_SESSION['moderator'])){ ?>
             <a href=""><?php echo lang('closed'); ?></a>
     <?php } else { ?>
             <a href="<?php echo $config['url_path']; ?>/message.php?page=<?php echo $page; ?>&amp;reply=<?php echo $topic['id']; ?>"><?php echo lang('reply_c'); ?></a> | 

@@ -1,5 +1,5 @@
     	<td valign="top" align="left">
-    		<table class="uc" width="100%" cellpadding="5" cellspacing="2">
+    		<table class="uc" width="100%" cellpadding="5" cellspacing="0">
     			<tr>
 
     				<td class="title">Editing Profile</td>

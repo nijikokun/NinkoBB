@@ -13,7 +13,7 @@
     	<td width="60%" align="left" class="bodyfont">
 <?php if($_SESSION['logged_in']) { ?>
 			<?php echo lang('welcome_back'); ?> <strong><?php echo $user_data['username']; ?></strong>
-			( <a href="users.php?a=home"><?php echo lang('user_cp'); ?></a><?php if($_SESSION['is_admin']) { ?> | <a href="admin.php"><?php echo lang('admin_cp'); ?></a><?php } ?> ) 
+			( <a href="users.php?a=home"><?php echo lang('user_cp'); ?></a><?php if($user_data['admin']) { ?> | <a href="admin.php"><?php echo lang('admin_cp'); ?></a><?php } ?> ) 
 			<a href="logout.php"><?php echo lang('logout'); ?></a>
 <?php } else { ?>
 			<form method="post">
@@ -25,7 +25,7 @@
     	</td>
     	<td width="40%" align="right" class="bodyfont" valign="middle">
 <?php if($in_topic){ ?>
-	<?php if($closed && !$_SESSION['is_admin']){ ?>
+	<?php if($closed && (!$_SESSION['admin'] || !$_SESSION['moderator'])){ ?>
 			<a href="" class="white rounded"><?php echo lang('closed'); ?></a>
 	<?php } else { ?>
 			<a href="<?php echo $config['url_path']; ?>/message.php?page=<?php echo $page; ?>&amp;reply=<?php echo $topic['id']; ?>" class="white rounded"><?php echo lang('reply'); ?></a>

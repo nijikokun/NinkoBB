@@ -62,13 +62,19 @@ function login($username, $email = false, $password)
 					return 908;
 				}
 				
-				// Are they admin? if so what level?
-				if($user_data['admin'])
+				// What is this user classified as?
+				$type = type($user_data['username']);
+				
+				// Tell us what they are
+				switch($type)
 				{
-					$_SESSION['is_admin'] = true;
+					case 1: $_SESSION['admin'] = true; break;
+					case 2: $_SESSION['moderator'] = true; break;
+					case 3: $_SESSION['banned'] = true; break;
+					default: break;
 				}
 				
-				// Set Session
+				// Update their session
 				$_SESSION['logged_in']  = true;
 				$_SESSION['user_id']	= $user_data['id'];
 				$_SESSION['user_name']	= $user_data['username'];
@@ -128,13 +134,19 @@ function login($username, $email = false, $password)
 				return 908;
 			}
 			
-			// Are they admin? if so what level?
-			if($user_data['admin'])
+			// What is this user classified as?
+			$type = type($user_data['username']);
+			
+			// Tell us what they are
+			switch($type)
 			{
-				$_SESSION['is_admin'] = true;
+				case 1: $_SESSION['admin'] = true; break;
+				case 2: $_SESSION['moderator'] = true; break;
+				case 3: $_SESSION['banned'] = true; break;
+				default: break;
 			}
 			
-			// Set Session
+			// Update their session
 			$_SESSION['logged_in']  = true;
 			$_SESSION['user_id']	= $user_data['id'];
 			$_SESSION['user_name']	= $user_data['username'];
@@ -441,17 +453,17 @@ function validate_user($email, $key)
 }
 
 /**
- * Checks to see whether user has admin rights or not.
+ * Checks to see what type of user we are dealing with
  * @param string $username username of user to be checked against
  * @return boolean|integer
  */
-function is_admin($username)
+function type($username)
 {
 	// Don't trust anyone
 	$username = mysql_real_escape_string($username);
 	
 	// Select only admin from the user table with the username given.
-	$data = mysql_query("SELECT admin FROM `users` WHERE `username` = '{$username}' LIMIT 1");
+	$data = mysql_query("SELECT * FROM `users` WHERE `username` = '{$username}' LIMIT 1");
 	
 	// Check to see if any rows were returned
 	if(mysql_num_rows($data) < 0)
@@ -463,7 +475,22 @@ function is_admin($username)
 		// There were, So return that they are infact an admin.
 		$data = mysql_fetch_array($data);
 		
-		return $data['admin'];
+		if($data['banned'])
+		{
+			return 3;
+		}
+		
+		if($data['moderator'])
+		{
+			return 2;
+		}
+		
+		if($data['admin'])
+		{
+			return 1;
+		}
+		
+		return false;
 	}
 }
 
