@@ -168,9 +168,8 @@ $config = array();
 
 /**
  * Versioning configuration
- * @depricated 1.0
  */
 
-	// Version Number [1.1] do not change
-	$config['version'] = "1.1";
+	// Version Number [1.2] do not change
+	$config['version'] = "1.2";
 ?>
