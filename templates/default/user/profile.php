@@ -2,7 +2,7 @@
     		<table class="uc" width="100%" cellpadding="5" cellspacing="0">
     			<tr>
 
-    				<td class="title">Editing Profile</td>
+    				<td class="title"><?php echo lang('editing_profile'); ?></td>
     			</tr>
 <?php if ($error){ ?>
                 <tr>
@@ -19,7 +19,7 @@
 <?php } ?>
     			<tr>
     				<td class="post">
-    					You are editing your personal information. This information may be displayed on other pages!
+    					<?php echo lang('editing_profile_msg'); ?>
     					<form method="post">
     				</td>
     			</tr>

@@ -215,6 +215,7 @@ $lang = Array();
 		$lang['ERROR_WITH_COOKIES']			= "Error with cookies";
 		$lang['ERROR_COOKIE_BODY']			= "Please <a href='%s'>logout</a>.<br />You will then be asked to sign back in<br /><br /><strong>If logging out does not work:</strong><br />Close your browser and try to log back in."; 
 		$lang['ERROR_MESSAGE_LENGTH']		= "Message is either too long or too short. %s maximum characters, %s minimum!";
+		$lang['ERROR_SUBJECT_LENGTH']		= "Subject is either too long or too short. %s maximum characters, %s minimum!";
 		$lang['ERROR_USERNAME_TAKEN']		= "Username Taken!";
 		$lang['ERROR_USERNAME_TOO_LONG']	= "Username is too long!";
 		$lang['ERROR_USERNAME_TOO_SHORT']	= "Username is too short!";
@@ -246,7 +247,7 @@ $lang = Array();
 		$lang['SUCCESS_EDITED_TOPIC']		= "Successfully edited topic!";
 		$lang['SUCCESS_POST']				= "Post added!";
 		$lang['SUCCESS_TOPIC']				= "Topic added!";
-		$lang['SUCCESS_UPDATE_PASSWORD']	= "Successfully updated password!";
+		$lang['SUCCESS_UPDATE_ACCOUNT']		= "Successfully updated account!";
 		$lang['SUCCESS_UPDATE_AVATAR']		= "Congratulations, your avatar has been updated!";
 		$lang['SUCCESS_UPDATE_PROFILE']		= "Successfully updated profile!";
 		$lang['SUCCESS_LOGOUT']				= "Successfully Logged Out";
@@ -315,6 +316,8 @@ $lang = Array();
 		$lang['KEY']						= "key";
 		$lang['KEY_C']						= "Key";
 		$lang['ACCOUNT_VERIFIED']			= "Account has been verified!";
+		$lang['EDITING_PROFILE']			= "Editing Profile";
+		$lang['EDITING_PROFILE_MSG']		= "You are editing your personal information. This information may be displayed on other pages!";
 		
 		
 	// ** NICE DATE RELATED ** //

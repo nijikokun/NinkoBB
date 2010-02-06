@@ -339,7 +339,7 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 			return lang_parse('error_invalid_chars', array(lang('subject')));
 		}
 		
-		if(is_string(length($content, $config['message_minimum_length'], $config['message_max_length'])))
+		if(is_string(length($topic, $config['subject_minimum_length'], $config['subject_max_length'])))
 		{
 			return lang_parse('error_subject_length', array($config['subject_max_length'], $config['subject_minimum_length']));
 		}
@@ -725,7 +725,7 @@ function parse($text, $bbcode = true)
 		// Quoting
 		if (strpos($text, 'quote') !== false)
 		{
-			$text = str_replace('[quote]', '<blockquote><div class="quotebox"><div>', $text);
+			$text = str_replace('[quote]', '<blockquote><div class="quotebox"><div class="text">', $text);
 			$text = preg_replace('/\[quote=(&quot;|"|\'|)(.*)\\1\]/seU', '"<blockquote><div class=\"quotebox\"><h4>".str_replace(array(\'[\', \'\\"\'), array(\'&#91;\', \'"\'), \'$2\')." wrote:</h4><div class=\"text\">"', $text);
 			$text = preg_replace('/\[\/quote\](\s *)?/i', '</div></div></blockquote>', $text);
 		}
