@@ -15,7 +15,7 @@
 				<tr>
 					<td class="item"><?php echo $user['styled_name']; ?></td>
 					<td align="center" class="item grey"><?php echo $user['email']; ?></td>
-					<td align="center" class="item grey"><?php if($user['admin']){ echo lang('admin') . ' '; } else if($user['moderator']){ echo 'Moderator '; } else if($user['banned']){ echo lang('banned') . ' '; } ?></td>
+					<td align="center" class="item grey"><?php if($user['admin']){ echo lang('admin') . ' '; } else if($user['moderator']){ echo lang('moderator') . ' '; } else if($user['banned']){ echo lang('banned') . ' '; } ?></td>
 					<td align="center" class="item grey"><?php echo forum_count(false, $user['id']); ?></td>
 					<td align="center" class="item key"><a href="<?php echo $config['url_path']; ?>/admin.php?a=users&edit=<?php echo $user['id']; ?>"><?php echo lang('edit'); ?></a></td>
 <?php if($user['banned']){ ?>
