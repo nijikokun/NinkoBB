@@ -83,7 +83,6 @@ switch($step)
 <?php break; case 1: ?>
 <p>Updating...</p>
 
-<ul>
 <?php
 	if (file_exists("../include/database.php"))
 	{
