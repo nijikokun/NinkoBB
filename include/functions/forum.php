@@ -669,6 +669,12 @@ function parse($text, $bbcode = true)
 {
 	global $config;
 	
+	// Return base text!
+	if(!$bbcode)
+	{
+		return $text;
+	}
+	
 	// Do they allow bbcode or does this post allow bbcode?
 	if($config['bbcode'] && $bbcode)
 	{
@@ -750,6 +756,9 @@ function parse($text, $bbcode = true)
 			$text = preg_replace('/\[img\]((ht|f)tps?:\/\/)([^\s<\"]*?)\.(jpg|jpeg|png|gif)\[\/img\]/s', '<img class="p-image" src="\\1\\3.\\4\" />', $text);
 		}
 		
+		// Parse with newlines and such before the code
+		$text = clickable(stripslashes(nl2br(str_replace(array('\r\n', '\r', '\n'), "<br />", $text))));
+		
 		// If we split up the message before we have to concatenate it together again (code tags)
 		if (isset($inside))
 		{
@@ -770,14 +779,8 @@ function parse($text, $bbcode = true)
 		}
 	}
 	
-	// Return base text!
-	if(!$bbcode)
-	{
-		return $text;
-	}
-	
 	// Return a fully parsed post / other
-	return clickable(stripslashes(nl2br(str_replace(array('\r\n', '\r', '\n'), "<br />", html_entity_decode($text)))));
+	return html_entity_decode($text);
 }
 		
 /**
