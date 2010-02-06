@@ -119,6 +119,12 @@ $config = array();
 	// Max length of post - 9999999 for none srsly.
 	$config['message_max_length'] = 500;
 	
+	// Minimum subject length
+	$config['subject_minimum_length'] = 3;
+	
+	// Max length of subjects - 9999999 for none srsly.
+	$config['subject_max_length'] = 32;
+	
 	// Bbcode settings
 	$config['bbcode'] = true;
 	$config['bbcode_url'] = true;

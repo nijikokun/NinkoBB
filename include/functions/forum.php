@@ -339,6 +339,11 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 			return lang_parse('error_invalid_chars', array(lang('subject')));
 		}
 		
+		if(is_string(length($content, $config['message_minimum_length'], $config['message_max_length'])))
+		{
+			return lang_parse('error_subject_length', array($config['subject_max_length'], $config['subject_minimum_length']));
+		}
+		
 		if($content != "")
 		{
 			if(!is_string(length($content, $config['message_minimum_length'], $config['message_max_length'])))
