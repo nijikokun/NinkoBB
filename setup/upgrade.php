@@ -104,9 +104,9 @@ switch($step)
 ?>
 <p>Hmm.. Had some trouble selecting what version of NinkoBB you are upgrading from..</p>
 
-<?php if(isset($version_from_config)){ ?>
+<?php if(isset($config['version'])){ ?>
 <p>
-	Your configuration says you are on: <a href="setup.php?step=1&v=<?php $version_from_config; ?>"><b><?php $version_from_config; ?></a></b>.<br /><br />
+	Your configuration says you are on: <a href="setup.php?step=1&v=<?php $config['version']; ?>"><b><?php $config['version']; ?></a></b>.<br /><br />
 	If this is incorrect select your version below:
 </p>
 <?php } ?>
@@ -114,7 +114,7 @@ switch($step)
 <p>
 	Select your version: 
 <?php foreach($prior as $version){ ?>
-	<a href="setup.php?step=1&v=<?php echo $version; ?>"><?php echo $version; ?>, 
+	<a href="setup.php?step=1&v=<?php echo $version; ?>"><?php echo $version; ?>, </a>
 <?php } ?>
 </p>
 <?php
@@ -137,7 +137,7 @@ switch($step)
 		// Code for the LATEST upgrade, injects on all older upgrades.
 		if($_GET['v'] < $latest)
 		{
-			$checks['directory'] = array("<code>plugins/captcha/</code> directory of ninko is ", "../plugins/captcha/", 0777);
+			$checks['directory'] = array("<code>plugins/captcha/</code> directory of ninko is ", "../plugins/captcha/", '0777');
 			$schema['Update <code>`config`</code> for subject length'] = "INSERT INTO `config` (`id` ,`key` ,`value`) VALUES (NULL , 'subject_minimum_length', '3'), (NULL , 'subject_max_length', '32');";
 			$schema['Update <code>`users`</code> with <code>`moderator`</code> setting'] = "ALTER TABLE `users` ADD `moderator` INT(1) NOT NULL DEFAULT '0' AFTER `admin`";
 			$schema['Update <code>`plugins`</code> install <code>`captcha`</code>'] = "INSERT IGNORE INTO `plugins` (`name`) VALUES ('captcha');";
@@ -157,7 +157,6 @@ switch($step)
 					if(is_writable($data[1]))
 					{
 						$return = "<span class='error'>unwritable.</span> Please chmod to " . $data[2];
-						$errors = true;
 					}
 					else
 					{

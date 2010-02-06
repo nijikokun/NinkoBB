@@ -47,10 +47,6 @@ while($row = mysql_fetch_array($result))
 	{
 		$config[$row['key']] = false;
 	}
-	else if($row['value'] == '1' || $row['value'] == 1)
-	{
-		$config[$row['key']] = true;
-	}
 	else
 	{
 		$config[$row['key']] = $row['value'];

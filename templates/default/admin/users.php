@@ -66,7 +66,7 @@
 						</dl>
 						<dl class="input">
 							<dt>
-								<?php echo lang('settings'); ?><br />
+								<?php echo lang('settings'); ?><br /><br />
 								<span></span>
 							</dt>
 							<dd><input type="checkbox" name="banned" <?php echo equals($update_user_data['banned'], true, ' checked '); ?>/> <?php echo lang('banned'); ?></dd>

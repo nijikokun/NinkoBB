@@ -109,7 +109,7 @@ if($sticky_topics)
 		// Topic status
 		if($row['closed'])
 		{
-			$status = '<span class="closed rounded">' . lang('closed') . '</span><br />';
+			$status = '<span class="closed rounded">' . lang('closed') . '</span>';
 		}
 		
 		if($row['sticky'])
