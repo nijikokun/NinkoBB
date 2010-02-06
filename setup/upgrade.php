@@ -142,6 +142,7 @@ switch($step)
 			$schema['Update <code>`config`</code> for subject length'] = "INSERT INTO `config` (`id` ,`key` ,`value`) VALUES (NULL , 'subject_minimum_length', '3'), (NULL , 'subject_max_length', '32');";
 			$schema['Update <code>`users`</code> with <code>`moderator`</code> setting'] = "ALTER TABLE `users` ADD `moderator` INT(1) NOT NULL DEFAULT '0' AFTER `admin`";
 			$schema['Update <code>`plugins`</code> install <code>`captcha`</code>'] = "INSERT IGNORE INTO `plugins` (`name`) VALUES ('captcha');";
+			$schema['Updating Configuration to <code>1.2</code>'] = "UPDATE `config` SET `value` = '1.2' WHERE `key` = 'version';";
 		}
 		
 		if(is_array($checks) && isset($checks))
