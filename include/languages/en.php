@@ -180,6 +180,7 @@ $lang = Array();
 		$lang['TOPICS_PER']					= "topics per index page";
 		$lang['POSTS_PER']					= "posts per topic";
 		$lang['MESSAGE_LENGTH']				= "Message Length";
+		$lang['SUBJECT_LENGTH']				= "Subject Length";
 		$lang['SECONDS_BETWEEN_TOPICS']		= "seconds between posting topics";
 		$lang['SECONDS_BETWEEN_POSTING']	= "seconds between replying to a topic";
 		$lang['PLUGIN']						= "plugin";

@@ -118,6 +118,12 @@ function captcha()
 	// Output image
 	@header("Content-type:image/jpeg");
 	imagejpeg($img, 'plugins/captcha/secure.jpg');
+	
+	// Make sure we can write to it
+	if(!is_writable('plugins/captcha/secure.jpg'))
+	{
+		@chmod('plugins/captcha/secure.jpg', 0777);
+	}
 }
 
 /**

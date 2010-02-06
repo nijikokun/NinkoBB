@@ -481,6 +481,19 @@
                         <dl class="input">
                             <dt>
                                 <label>
+                                    <?php echo lang('subject_length'); ?><br />
+                                    <span><?php echo lang('min_max'); ?></span>
+                                </label>
+                            </dt>
+                            <dd><input type="text" name="subject_minimum_length" value="<?php echo switchs($_POST['subject_minimum_length'], $config['subject_minimum_length']); ?>" class="border" style="width: 10%" /> <input type="text" name="subject_max_length" value="<?php echo switchs($_POST['subject_max_length'], $config['subject_max_length']); ?>" class="border" style="width: 10%" /></dd>
+                        </dl>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="form">
+                        <dl class="input">
+                            <dt>
+                                <label>
                                     <?php echo lang('message_length'); ?><br />
                                     <span><?php echo lang('min_max'); ?></span>
                                 </label>

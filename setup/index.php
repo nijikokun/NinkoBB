@@ -80,6 +80,7 @@ switch($step)
 	<li><code>/</code> root directory of ninko is <?php if (!is_writable('../')) { echo "<span class='error'>unwritable.</span> Please chmod to 777"; $continue = false; } else { echo "<span class='ok'>writable</span>"; } ?>
 	<li><code>/include/</code> directory of ninko is <?php if (!is_writable('../include/')) { echo "<span class='error'>unwritable.</span> Please chmod to 777"; $continue = false; } else { echo "<span class='ok'>writable</span>"; } ?>
 	<li><code>/avatars/</code> directory of ninko is <?php if (!is_writable('../avatars/')) { echo "<span class='error'>unwritable.</span> Users will not be able to upload avatars"; } else { echo "<span class='ok'>writable</span>"; } ?>
+	<li><code>/plugins/captcha/</code> directory of ninko is <?php if (!is_writable('../plugins/captcha/')) { echo "<span class='error'>unwritable.</span> Users will not be able to upload avatars"; $continue = false; } else { echo "<span class='ok'>writable</span>"; } ?>
 </ul>
 
 <p><?php if($continue){ ?><a href="?step=1">Continue to step 1 &raquo;</a><?php } else { ?>Please check your server and update any server errors!<?php } ?></p>
@@ -124,6 +125,7 @@ case 2:
 
 	// We'll fail here if the values are no good.
 	$cid = mysql_connect($host,$user,$pass);
+	
 	if (!$cid)
 	{ 
 ?>
@@ -260,6 +262,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_seen` text NOT NULL,
   `posts` int(255) DEFAULT '0',
   `admin` int(1) DEFAULT '0',
+  `moderator` int(1) DEFAULT '0',
   `banned` int(11) NOT NULL DEFAULT '0',
   `active` int(255) NOT NULL DEFAULT '0',
   `key` text NOT NULL,
@@ -285,8 +288,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 		
 		// Default data
 		$db_schema = array();
-		$db_schema['config'] = "INSERT INTO `config` (`id`, `key`, `value`) VALUES (1, 'site_name', 'ninko'),(2, 'admin_email', 'your@email.com'),(3, 'admin_symbol', '!'),(4, 'url_path', 'http://mysite.com/riotpix'),(5, 'path', ''),(6, 'allow_cookies', '1'),(7, 'cookie_domain', '/'),(8, 'cookie_save', '1327713948'),(9, 'min_name_length', '3'),(10, 'max_name_length', '100'),(11, 'email_validation', ''),(12, 'email_sender', 'noreply@email.com'),(13, 'email_subject', 'Action required to activate your account at {site_name}!'),(14, 'email_message', 'Hello {username}!\r\nYou recently signed up at ninko, this email is to validate that the email you used is a real email address. \r\n\r\nClick on the following link to validate your account: {link}\r\n----------------------------------------------------------------------------\r\nThis email was sent automatically. Please do not respond to this for support or help Thank you and have a nice day! From {site_name}'),(15, 'age_validation', ''),(16, 'avatar_max_size', '100'),(17, 'avatar_max_width', '100'),(18, 'avatar_max_height', '100'),(19, 'avatar_upload_path', 'avatars/'),(20, 'avatar_folder_name', 'avatars'),(21, 'avatar_use', 'username'),(22, 'avatar_md5_use', '1'),(23, 'default_avatar', 'default'),(24, 'default_avatar_type', '.jpg'),(25, 'user_online_timeout', '30'),(26, 'messages_per_page', '20'),(27, 'messages_per_topic', '13'),(28, 'message_minimum_length', '3'),(29, 'message_max_length', '500'),(30, 'signature_allow', '1'),(31, 'signature_minimum_length', '3'),(32, 'signature_max_length', '500'),(33, 'post_topic_time_limit', '30'),(34, 'post_reply_time_limit', '10'),(35, 'show_first_post', '1'),(36, 'allow_quick_reply', '1'),(37, 'max_length', '32'),(38, 'slashes', ''),(39, 'date_format', 'F jS, Y, g:i a'),(40, 'timechange', '-5'),(42, 'version', '1.1'),(43, 'bbcode', '1'),(44, 'bbcode_url', '1'),(45, 'bbcode_image', '1'),(46 , 'language', 'en'), (47 , 'theme', 'default');";
-		$db_schema['plugins'] = "INSERT INTO `plugins` (`name`) VALUES ('guest_counter');";
+		$db_schema['config'] = "INSERT INTO `config` (`id`, `key`, `value`) VALUES (1, 'site_name', 'ninko'),(2, 'admin_email', 'your@email.com'),(3, 'admin_symbol', '!'),(4, 'url_path', 'http://mysite.com/riotpix'),(5, 'path', ''),(6, 'allow_cookies', '1'),(7, 'cookie_domain', '/'),(8, 'cookie_save', '1327713948'),(9, 'min_name_length', '3'),(10, 'max_name_length', '100'),(11, 'email_validation', ''),(12, 'email_sender', 'noreply@email.com'),(13, 'email_subject', 'Action required to activate your account at {site_name}!'),(14, 'email_message', 'Hello {username}!\r\nYou recently signed up at ninko, this email is to validate that the email you used is a real email address. \r\n\r\nClick on the following link to validate your account: {link}\r\n----------------------------------------------------------------------------\r\nThis email was sent automatically. Please do not respond to this for support or help Thank you and have a nice day! From {site_name}'),(15, 'age_validation', ''),(16, 'avatar_max_size', '100'),(17, 'avatar_max_width', '100'),(18, 'avatar_max_height', '100'),(19, 'avatar_upload_path', 'avatars/'),(20, 'avatar_folder_name', 'avatars'),(21, 'avatar_use', 'username'),(22, 'avatar_md5_use', '1'),(23, 'default_avatar', 'default'),(24, 'default_avatar_type', '.jpg'),(25, 'user_online_timeout', '30'),(26, 'messages_per_page', '20'),(27, 'messages_per_topic', '13'),(28, 'subject_minimum_length', '3'),(29, 'subject_max_length', '32')(28, 'message_minimum_length', '3'),(29, 'message_max_length', '500'),(30, 'signature_allow', '1'),(31, 'signature_minimum_length', '3'),(32, 'signature_max_length', '500'),(33, 'post_topic_time_limit', '30'),(34, 'post_reply_time_limit', '10'),(35, 'show_first_post', '1'),(36, 'allow_quick_reply', '1'),(37, 'max_length', '32'),(38, 'slashes', ''),(39, 'date_format', 'F jS, Y, g:i a'),(40, 'timechange', '-5'),(42, 'version', '1.1'),(43, 'bbcode', '1'),(44, 'bbcode_url', '1'),(45, 'bbcode_image', '1'),(46 , 'language', 'en'), (47 , 'theme', 'default');";
+		$db_schema['plugins'] = "INSERT INTO `plugins` (`name`) VALUES ('guest_counter'),('captcha');";
 		
 		echo "<h2>Inserting Data...</h2><ul>";
 		  
