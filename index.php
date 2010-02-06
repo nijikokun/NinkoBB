@@ -120,7 +120,7 @@ if($sticky_topics)
 		/**
 		 * Include sticky topics template
 		 */
-		include($config['template_path'] . "forum/sticky-topics.php");
+		include($config['template_path'] . "forum/topics.php");
 		
 		// Increase counter
 		$count++;
