@@ -7,9 +7,10 @@
 	<script src="<?php echo $config['template_url']; ?>assets/js/jquery.js"></script>
 	<script src="<?php echo $config['template_url']; ?>assets/js/jquery.scrollTo-min.js"></script>
 	<meta name="google-site-verification" content="-4qIPDRFfao0Uc9hhERR7vO8TQ6FBQ4hb00h6u87tQ4" />
+	<?php load_hook('page_head'); ?>
 </head>
-
 <body>
+<?php load_hook('page_start'); ?>
 <div id="wrapper">
 <table border="0" cellpadding="2" cellspacing="0" class="header top-rounded">
   <tr>
@@ -17,7 +18,7 @@
 		<a href="<?php echo $config['url_path']; ?>"><?php echo $config['site_name']; ?></a>
 	</td>
     <td align="right">
-		<a href="docs/">Documentation</a> - <a href="http://ninkobb.com/read.php?id=57">Download</a>
+		<?php load_hook('header_right'); ?>
 	</td>
   </tr>
 </table>

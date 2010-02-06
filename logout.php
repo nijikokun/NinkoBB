@@ -20,6 +20,9 @@ $login_cookie = @$_COOKIE["login"];
 // if cookie is found, reset cookie and destroy session
 if(isset($login_cookie))
 {
+	// logging out
+	load_hook('logout');
+	
 	setcookie ("login", "", time()-60000*24*30); 
 	@session_start();
 	session_destroy();
@@ -32,7 +35,10 @@ if(isset($login_cookie))
 	print_out(lang('success_logout'), lang('redirecting'));
 }
 else
-{ 
+{
+	// logging out
+	load_hook('logout');
+	
 	@session_start();
 	session_destroy(); 
 	

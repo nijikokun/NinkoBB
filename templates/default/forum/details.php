@@ -5,7 +5,7 @@
 	<tr>
 		<td class="form" valign="top">
 			<?php if($online_data['users']){ ?><?php echo $online_data['users']; ?><?php } else { echo lang('no_online'); } ?>
-			<?php if(is_loaded('Guest Counter')){ if($bots_online_data['users']){ ?>, <?php echo $bots_online_data['users']; ?><?php } } ?>
+			<?php if(is_loaded('guest_counter')){ if($bots_online_data['users']){ ?>, <?php echo $bots_online_data['users']; ?><?php } } ?>
 		</td>
 	</tr>
 	<tr>

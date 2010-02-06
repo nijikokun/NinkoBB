@@ -2,7 +2,7 @@
 <table width="50%" border="0" cellspacing="2" cellpadding="5" class="subject">
 	<tr>
 		<td colspan="2">
-			<?php echo stripslashes(htmlentities($post['subject'])); ?> 
+			<?php echo stripslashes(htmlentities($_POST['subject'])); ?> 
 			<span class="info">(0 <?php echo lang('posts_c'); ?>)</span>
 		</td>
 	</tr>

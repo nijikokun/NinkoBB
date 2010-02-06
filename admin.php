@@ -26,6 +26,9 @@ if(!$user_data['admin'])
 	header('location: ' . $config['url_path']);
 }
 
+// Hook at opening of admin
+load_hook('admin');
+
 // Requesting what page?
 switch($_GET['a'])
 {
@@ -55,6 +58,9 @@ if($action == "home")
 	 * Include admin navigation
 	 */
 	include($config['template_path'] . "admin/navigation.php");
+	
+	// Admin home hook
+	load_hook('admin_home');
 
 	/**
 	 * Include admin home page
@@ -110,6 +116,9 @@ else if($action == "settings")
 				update_config($key, mysql_clean(stripslashes($setting)));
 			}
 		}
+		
+		// Admin home hook
+		load_hook('admin_settings_update');
 	}
 	
 	/**

@@ -24,6 +24,9 @@ if(isset($_POST['post']))
 		// Check to see if we are trying to sticky or close a topic
 		if($_POST['sticky'] == "on") { $sticky = 1; } else { $sticky = 0; }
 		if($_POST['closed'] == "on") { $closed = 1; } else { $closed = 0; }
+		
+		// Longest hook yet, before the post, inside of session / moderator check
+		load_hook('before_post_function_admin_mod');
 	}
 	else
 	{
@@ -39,10 +42,16 @@ if(isset($_POST['post']))
 	}
 	else
 	{
+		// Before post function
+		load_hook('before_post_function');
+		
 		/**
 		 * Now for the fun part!
 		 */
 		$data = post($_POST['subject'], $_POST['content'], $_POST['reply'], $sticky, $closed);
+		
+		// After the post is done dunno what for but w/e
+		load_hook('after_post_function');
 					
 		// Errors
 		if(is_string($data) && !is_numeric($data))

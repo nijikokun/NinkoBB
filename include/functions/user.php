@@ -44,6 +44,9 @@ function login($username, $email = false, $password)
 			// Encrypt the password
 			$password = md5($password);
 			
+			// login before
+			load_hook('login_before');
+			
 			// Query
 			$query = "SELECT * FROM `users` WHERE `email` = '{$email}' AND `password` = '{$password}' LIMIT 1";
 			
@@ -73,6 +76,9 @@ function login($username, $email = false, $password)
 					case 3: $_SESSION['banned'] = true; break;
 					default: break;
 				}
+				
+				// logged in
+				load_hook('login_after');
 				
 				// Update their session
 				$_SESSION['logged_in']  = true;
@@ -116,6 +122,9 @@ function login($username, $email = false, $password)
 		// Encrypting password
 		$password = md5($password);
 		
+		// login before
+		load_hook('login_before');
+		
 		// Query
 		$query = "SELECT * FROM `users` WHERE `username` = '{$username}' AND `password` = '{$password}' LIMIT 1";
 		
@@ -145,6 +154,9 @@ function login($username, $email = false, $password)
 				case 3: $_SESSION['banned'] = true; break;
 				default: break;
 			}
+			
+			// login before
+			load_hook('login_after');
 			
 			// Update their session
 			$_SESSION['logged_in']  = true;
@@ -475,6 +487,9 @@ function type($username)
 		// There were, So return that they are infact an admin.
 		$data = mysql_fetch_array($data);
 		
+		// before
+		load_hook('type_before');
+		
 		if($data['banned'])
 		{
 			return 3;
@@ -489,6 +504,9 @@ function type($username)
 		{
 			return 1;
 		}
+		
+		// after
+		load_hook('type_after');
 		
 		return false;
 	}

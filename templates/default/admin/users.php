@@ -70,6 +70,7 @@
 								<span></span>
 							</dt>
 							<dd><input type="checkbox" name="banned" <?php echo equals($update_user_data['banned'], true, ' checked '); ?>/> <?php echo lang('banned'); ?></dd>
+							<dd><input type="checkbox" name="moderator" <?php echo equals($update_user_data['moderator'], true, ' checked '); ?>/> <?php echo lang('moderator'); ?></dd>
 							<dd><input type="checkbox" name="admin" <?php echo equals($update_user_data['admin'], true, ' checked '); ?>/> <?php echo lang('admin'); ?></dd>
 						</dl>
 						<dl class="input">

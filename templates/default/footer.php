@@ -8,6 +8,7 @@ if($pagination)
     echo $pagination;
 }
 ?>
+		<?php load_hook('footer_left'); ?>
         </div>
     </td>
     <td height="20" align="right" class="bodyfont">
@@ -23,13 +24,14 @@ if($pagination)
 <?php } else { ?>
             <a href="<?php echo $config['url_path']; ?>/message.php?reply=0"><?php echo lang('start_new_topic'); ?></a> | 
 <?php } ?>
+			<?php load_hook('footer_right'); ?>
             Powered by <a href="http://ninko.anigaiku.com/">Ninko</a>
-
          </div>
      </td>
 </tr>
 </table>
 </div>
+<?php load_hook('page_end'); ?>
 <script>
 	$("a#qq").click(function(){
             var id = $(this).attr('alt');

@@ -192,6 +192,7 @@ $lang = Array();
 		$lang['SITE_LANGUAGE']				= "Site Language";
 		$lang['LANGUAGE_MSG']				= "The language of your preference";
 		$lang['SITE_THEME']					= "Site Theme";
+		$lang['MODERATOR']					= "Moderator";
 		
 		
 		

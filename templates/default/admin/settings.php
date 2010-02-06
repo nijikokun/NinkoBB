@@ -10,14 +10,16 @@
                                 <td align="center" width="25%" class="<?php echo equals($area, "main", "error", "post"); ?>">
                                 <a href="<?php echo $config['url_path']; ?>/admin.php?a=settings&amp;area=main"><?php echo lang('main'); ?></a></td>
                                 
-                                <td align="center" width="25%"  class="<?php echo equals($area, "register", "error", "post"); ?>">
+                                <td align="center" width="25%" class="<?php echo equals($area, "register", "error", "post"); ?>">
                                 <a href="<?php echo $config['url_path']; ?>/admin.php?a=settings&amp;area=register"><?php echo lang('registration'); ?></a></td>
                                 
-                                <td align="center" width="25%"  class="<?php echo equals($area, "user", "error", "post"); ?>">
+                                <td align="center" width="25%" class="<?php echo equals($area, "user", "error", "post"); ?>">
                                 <a href="<?php echo $config['url_path']; ?>/admin.php?a=settings&amp;area=user"><?php echo lang('user_c'); ?></a></td>
                                 
-                                <td align="center" width="25%"  class="<?php echo equals($area, "topics", "error", "post"); ?>">
+                                <td align="center" width="25%" class="<?php echo equals($area, "topics", "error", "post"); ?>">
                                 <a href="<?php echo $config['url_path']; ?>/admin.php?a=settings&amp;area=topics"><?php echo lang('topics_c'); ?></a></td>
+								
+								<?php load_hook('admin_settings_menu'); ?>
                             </tr>
                         </table>
                     </td>
@@ -526,7 +528,7 @@
                     </td>
                 </tr>
              </form>
-<?php } ?>
+<?php } else { load_hook('admin_settings_page'); } ?>
             </table>
         </td>
     </tr>

@@ -1,3 +1,4 @@
+<?php load_hook('quickreply_before'); ?>
 <form action="<?php echo $topic_url; ?>" method="post">
 <input type="hidden" name="reply" value="<?php echo $topic['id']; ?>">
 <table border="0" cellspacing="2" cellpadding="5" id="qr" class="title">
@@ -17,6 +18,7 @@
 </table>
 <?php } ?>
 <table border="0" cellspacing="2" cellpadding="5" class="form">
+	<?php load_hook('quickreply_inside_before'); ?>
     <tr>
 		<td valign="top">
 			<?php echo lang('subject'); ?>:<br />
@@ -29,5 +31,7 @@
 			<textarea name="qcontent" id="qcontent" class="border" style="width: 99.3%; height: 150px;"><?php echo switchs(field_clean($_POST['qcontent'])); ?></textarea>
 		</td>
     </tr>
+	<?php load_hook('quickreply_inside_after'); ?>
 </table>
 </form>
+<?php load_hook('quickreply_after'); ?>
