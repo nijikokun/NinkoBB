@@ -123,8 +123,10 @@ dt 											{ margin: 0px; font-weight: 700; }
 
 /* The color of usernames */
 .username 									{ font-size: 11px; font-weight: 700; color: #000; }
-	a.username 									{ font-size: 11px; font-weight: 700; color: #333333; }
+	a.username 								{ font-size: 11px; font-weight: 400; color: #333333; }
 	.admin 									{ color: #AA0000; }
-	a.admin 								{ color: #AA0000; }
+		a.admin 							{ color: #AA0000; }
+	.moderator								{ color: #006699; }
+		a.moderator							{ color: #006699; }
 	.banned 								{ color: #006699; }
 	

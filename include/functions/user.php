@@ -556,7 +556,7 @@ function username_style($data)
 	{
 		$styled_name = $data['username'];
 	}
-	else if(!$styled_name)
+	else
 	{
 		$styled_name = "<a href='{$config['url_path']}/users.php?a=view&id={$data['id']}' class='username'>{$data['username']}</a>";
 	}
@@ -746,7 +746,7 @@ function users_online($admins = false)
 	else
 	{
 		// User last seen
-		$query = "SELECT `id`,`admin`,`username` FROM `users` WHERE `last_seen` > {$time_between}";
+		$query = "SELECT `id`,`admin`,`moderator`,`username` FROM `users` WHERE `last_seen` > {$time_between}";
 	}
 	
 	// Fetch users last post
@@ -775,14 +775,7 @@ function users_online($admins = false)
 				$seperator = ", ";
 			}
 			
-			if($row['admin'])
-			{
-				$username = "<span class='admin'>{$config['admin_symbol']}{$row['username']}</span>";
-			}
-			else
-			{
-				$username = $row['username'];
-			}
+			$username = username_style($row);
 			
 			$online['users'] .= "{$username}{$seperator}";
 			
