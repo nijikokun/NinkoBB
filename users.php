@@ -107,7 +107,7 @@ else if($action == "account")
 		
 		if(!$error)
 		{
-			$success = lang('success_update_password');
+			$success = lang('success_update_account');
 		}
 	}
 	
