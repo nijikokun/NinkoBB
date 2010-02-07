@@ -34,7 +34,7 @@ function read_files($path)
  */
 function clickable($text)
 {
-	$text = preg_replace( "/(?<!<a href=\")((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\">\\0</a>", $text);
+	$text = preg_replace( "/(?<!href=[\"\'])(?<!src=[\"\'])((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\">\\0</a>", $text);
 	return $text;
 }
 
