@@ -30,11 +30,26 @@ function read_files($path)
 /**
  * Parses urls that start with http(s) into clickable links
  * @param string $text data to be scanned for links and replaced
+ * @param boolean $shorten do we want to shorten?
  * @return string
  */
-function clickable($text)
+function clickable($text, $shorten = false)
 {
-	$text = preg_replace( "/(?<!href=[\"\'])(?<!src=[\"\'])((http|ftp)+(s)?:\/\/[^<>\s]+)/i", "<a href=\"\\0\">\\0</a>", $text);
+	if($shorten)
+	{
+		if (strlen($text) > 32)
+		{
+			$offset1 = ceil(0.65 * 32) - 2;
+			$offset2 = ceil(0.30 * 32) - 1;
+
+			$text = substr($text, 0, $offset1) . '...' . substr($text, -$offset2);
+		}
+	}
+	else
+	{
+		$text = preg_replace( "/(?<!href=[\"\'])(?<!src=[\"\'])((ht|f)tps?:\/\/[^\s\r\n\t<>\"\'\!\(\)]+)/ie", "'<a href=\"$1\" title=\"$1\">'. clickable(\"$1\", true) .'</a>'", $text);
+	}
+	
 	return $text;
 }
 
@@ -50,7 +65,7 @@ function print_out($title, $body, $redirect = true)
 {
 	global $config;
 	
-	echo "<div class='title'>{$title}</div><p>{$body}</p>";
+	echo "<div class='title'><div class='inner'>{$title}</div></div><p><div class='inner'>{$body}</div></p>";
 	
 	if($redirect)
 	{

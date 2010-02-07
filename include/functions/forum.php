@@ -753,7 +753,7 @@ function parse($text, $bbcode = true)
 		// Do we allow images?
 		if($config['bbcode_image'])
 		{
-			$text = preg_replace('/\[img\]((ht|f)tps?:\/\/)([^\s<\"]*?)\.(jpg|jpeg|png|gif)\[\/img\]/s', '<img class="p-image" src="\\1\\3.\\4\" />', $text);
+			$text = preg_replace('/\[img\]((ht|f)tps?:\/\/)([^\s<\"]*?)\.(jpg|jpeg|png|gif)\[\/img\]/s', '<img class="p-image" src="$1$3.$4" />', $text);
 		}
 		
 		// Parse with newlines and such before the code
