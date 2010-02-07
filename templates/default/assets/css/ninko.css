@@ -78,9 +78,9 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 			.codebox .scrollbox 			{ margin: 0; border-top: 0px; background: #fefefe; }
 			.codebox pre 					{ width: 98%; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; margin: 5px; font-size: 11px; }
 		.quotebox 							{  }
-			blockquote						{ min-width: 700px; max-width: 800px; margin: 0px auto; padding: 5px; }
-			.quotebox h4 					{ border: 1px solid #ccc; background: #fff; padding: 5px; margin: 0px; }
-			.quotebox .text 				{ border: 1px solid #ccc; background: #fefefe; margin: 0; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; border-top: 0px;  }
+			blockquote						{ border: 1px solid #ccc; min-width: 700px; max-width: 800px; margin: 0px auto; padding: 0px; }
+			.quotebox h4 					{ border-bottom: 1px solid #ccc; background: #fff; padding: 5px; margin: 0px; }
+			.quotebox .text 				{ background: #fefefe; margin: 0; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; border-top: 0px;  }
 
 .subject									{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; font-weight: bold; font-size: 16px; }
 	.subject .subject						{ padding: 0px; border: none; font-family: Georgia; font-style: italic; font-size: 24px; }
