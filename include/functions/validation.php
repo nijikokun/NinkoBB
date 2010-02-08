@@ -220,7 +220,7 @@ function field_clean($value, $strip_tags = false)
 	
 	$value = stripslashes($value);
 	
-	$value = htmlentities($value);
+	$value = htmlentities($value, ENT_QUOTES, "UTF-8");
 	
 	# Return it
 	return $value;
