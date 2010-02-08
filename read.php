@@ -186,9 +186,15 @@ if(isset($_GET['id']))
 				}
 				else
 				{
-					// Create url
-					$redirect = "{$config['url_path']}/read.php?id={$_GET['id']}&page={$data}";
-					
+					if(is_array($data))
+					{
+						$redirect = $config['url_path'] . '/read.php?id=' . $_POST['reply'] . '&page=' . $data['page'] . '#p-' . $data['id'];
+					}
+					else
+					{
+						$redirect = $config['url_path'] . '/read.php?id=' . $data;
+					}
+						
 					// Redirect back to the topic!
 					print_out(lang('success_post'), lang('redirecting_topic'), $redirect);
 				}

@@ -60,9 +60,9 @@ if(isset($_POST['post']))
 		}
 		else
 		{
-			if(is_numeric($_POST['reply']) && $_POST['reply'])
+			if(is_array($data))
 			{
-				$redirect = $config['url_path'] . '/read.php?id=' . $_POST['reply'] . '&page=' . $data;
+				$redirect = $config['url_path'] . '/read.php?id=' . $_POST['reply'] . '&page=' . $data['page'] . '#p-' . $data['id'];
 				$success = lang('success_post');
 			}
 			else
