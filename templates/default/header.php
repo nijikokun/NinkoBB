@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo lang('encoding'); ?>" />
-	<title><?php echo $config['site_name']; ?></title>
+	<title><?php echo $config['site_name']; ?> - Open Source Forum Script</title>
 	<link href="<?php echo $config['template_url']; ?>assets/css/ninko.css" rel="stylesheet" type="text/css" />
 	<script src="<?php echo $config['template_url']; ?>assets/js/jquery.js"></script>
 	<script src="<?php echo $config['template_url']; ?>assets/js/jquery.scrollTo-min.js"></script>

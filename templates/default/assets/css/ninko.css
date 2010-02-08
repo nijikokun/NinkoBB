@@ -36,12 +36,12 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 	td.grey									{ color: #808080; }
 
 /* HEADER */
-.header 									{ padding: 10px; border-bottom: 1px solid #E9E9E9; background: #f2f2f2; }
+.header 									{ padding: 10px; border-bottom: 1px solid #D9D9D9; background: #f2f2f2; }
 	.header .logo a 						{ font-family: Georgia; font-style: italic; font-weight: bold; font-size: 24px; color: #000; }
 	.header .logo a:hover 					{ text-decoration: none; }
 	
 /* NAVIGATION */
-.navigation 								{ background: #E9E9E9; padding: 10px; border-bottom: 1px solid #E9E9E9; }
+.navigation 								{ background: #E9E9E9; padding: 10px; border-bottom: 1px solid #D9D9D9; }
 	.navigation a							{ color: #505050; }
 
 /* ERROR TABLES */
@@ -64,6 +64,7 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 	.topic .item							{ font-size: 10px; margin-right: 10px; }
 	.topic .posts							{ font-weight: bold; line-height: 24px; }
 	.topic .last							{ font-family: Georgia; font-style: italic; font-size: 11px; }
+	.light 									{ background: #F8F8FF !important; }
 	
 /* POST */
 .post										{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; }
@@ -73,14 +74,14 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 		.post dt							{  }
 		.post dd							{ float: left; margin-left: 10px; }
 	.post .message							{ padding: 0px 15px; }
-		.codebox 							{ min-width: 700px; max-width: 800px; margin: 5px auto; border: 1px solid #ccc; }
-			.codebox h4 					{ border-bottom: 1px solid #ccc; background: #fff; padding: 5px; margin: 0px; }
-			.codebox .scrollbox 			{ margin: 0; border-top: 0px; background: #fefefe; }
-			.codebox pre 					{ width: 98%; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; margin: 5px; font-size: 11px; }
+		.codebox 							{ min-width: 700px; max-width: 800px; margin: 5px auto; border: 1px solid #D9D9D9; }
+			.codebox h4 					{ border-bottom: 1px solid #D9D9D9; background: #e9e9e9; padding: 5px; margin: 0px; }
+			.codebox .scrollbox 			{ margin: 0; border-top: 0px; background: #F5F5F5; }
+			.codebox pre 					{ width: 98%; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; margin: 0px; font-size: 11px; }
 		.quotebox 							{  }
-			blockquote						{ border: 1px solid #ccc; min-width: 700px; max-width: 800px; margin: 0px auto; padding: 0px; }
-			.quotebox h4 					{ border-bottom: 1px solid #ccc; background: #fff; padding: 5px; margin: 0px; }
-			.quotebox .text 				{ background: #fefefe; margin: 0; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; border-top: 0px;  }
+			blockquote						{ border: 1px solid #D9D9D9; min-width: 700px; max-width: 800px; margin: 5px auto; padding: 0px; }
+			.quotebox h4 					{ border-bottom: 1px solid #D9D9D9; background: #e9e9e9; padding: 5px; margin: 0px; }
+			.quotebox .text 				{ background: #F5F5F5; margin: 0; max-height: 35em; min-height: 2em; overflow:auto; padding: 5px; border-top: 0px;  }
 
 .subject									{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; font-weight: bold; font-size: 16px; }
 	.subject .subject						{ padding: 0px; border: none; font-family: Georgia; font-style: italic; font-size: 24px; }
@@ -93,6 +94,11 @@ table 										{ width: 100%; font-family: Verdana, Arial, Helvetica, sans-seri
 /* TITLES */
 .title										{ background: #fff; padding: 10px; border-bottom: 1px solid #E9E9E9; font-family: Georgia; font-weight: bold; font-size: 13px; }
 	.title dt, .post						{ margin: 0px; }
+	
+/* MENU */
+.menu										{ background: #ffffff; padding: 10px; border-bottom: 1px solid #E9E9E9;  }
+	.menu-current							{ background: #F5F5F5; padding: 10px; border-bottom: 1px solid #E9E9E9;  }
+		.menu-current.admin					{ border: 1px solid #e9e9e9; }
 
 
 /* FORMS */
@@ -115,7 +121,7 @@ input.subject								{ width: 90%; background: #ffffff; }
 /* Containers for ucp / acp */
 dt 											{ margin: 0px; font-weight: 700; }
 	dl.input 								{ margin: 0px; padding: 5px; clear: both; }
-		dl.input dt 						{ margin: 0px; font-weight: 700; float: left; width: 40%; }
+		dl.input dt 						{ margin: 0px; font-weight: 400; float: left; width: 40%; }
 			dl.input dt span 				{ font-weight: 400; color: #666; margin-left: 5px; display: inline-block; }
 				dd 							{ margin: 0px; padding: 0px; color: #666666; }
 					dd strong 				{ color: #000000; }

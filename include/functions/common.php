@@ -232,6 +232,49 @@ function nice_date( $_date ) {
 	}
 }
 
+
+/**
+ * Returns a string interpreting how long ago a timestamp was created
+ * @param integer $timestamp unix timestamp created with time(), mktime(), strtotime()
+ * @return string
+ */
+function ago($timestamp) {
+		
+	// Store the current time
+	$current_time = time();
+
+	// Determine the difference, between the time now and the timestamp
+	$difference = $current_time - $timestamp;
+		
+	// Set the periods of time
+	$periods = array("second", "minute", "hour", "day", "week", "month", "year", "decade");
+		
+	// Set the number of seconds per period
+	$lengths = array(1, 60, 3600, 86400, 604800, 2630880, 31570560, 315705600);
+
+	// Determine which period we should use, based on the number of seconds lapsed.
+	// If the difference divided by the seconds is more than 1, we use that. Eg 1 year / 1 decade = 0.1, so we move on
+	// Go from decades backwards to seconds       
+	for ($val = sizeof($lengths) - 1; ($val >= 0) && (($number = $difference / $lengths[$val]) <= 1); $val--);
+
+	// Ensure the script has found a match
+	if ($val < 0) $val = 0;
+		
+	// Determine the minor value, to recurse through
+	$new_time = $current_time - ($difference % $lengths[$val]);
+		
+	// Set the current value to be floored
+	$number = floor($number);
+		
+	// If required create a plural
+	if($number != 1) $periods[$val].= "s";
+
+	// Return text
+	$text = sprintf("%d %s ", $number, $periods[$val]);   
+		
+	return $text;
+}
+
 /**
  * Splits text based on $start and $end giving you an array of text outside and text inside
  * @param string $text text to be split

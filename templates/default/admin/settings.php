@@ -7,16 +7,16 @@
                     <td>
                         <table class="uc" width="100%" cellpadding="2" cellspacing="0">
                             <tr>
-                                <td align="center" width="25%" class="<?php echo equals($area, "main", "error", "post"); ?>">
+                                <td align="center" width="25%" class="<?php echo equals($area, "main", "menu-current", "menu"); ?> admin">
                                 <a href="<?php echo $config['url_path']; ?>/admin.php?a=settings&amp;area=main"><?php echo lang('main'); ?></a></td>
                                 
-                                <td align="center" width="25%" class="<?php echo equals($area, "register", "error", "post"); ?>">
+                                <td align="center" width="25%" class="<?php echo equals($area, "register", "menu-current", "menu"); ?> admin">
                                 <a href="<?php echo $config['url_path']; ?>/admin.php?a=settings&amp;area=register"><?php echo lang('registration'); ?></a></td>
                                 
-                                <td align="center" width="25%" class="<?php echo equals($area, "user", "error", "post"); ?>">
+                                <td align="center" width="25%" class="<?php echo equals($area, "user", "menu-current", "menu"); ?> admin">
                                 <a href="<?php echo $config['url_path']; ?>/admin.php?a=settings&amp;area=user"><?php echo lang('user_c'); ?></a></td>
                                 
-                                <td align="center" width="25%" class="<?php echo equals($area, "topics", "error", "post"); ?>">
+                                <td align="center" width="25%" class="<?php echo equals($area, "topics", "menu-current", "menu"); ?> admin">
                                 <a href="<?php echo $config['url_path']; ?>/admin.php?a=settings&amp;area=topics"><?php echo lang('topics_c'); ?></a></td>
 								
 								<?php load_hook('admin_settings_menu'); ?>

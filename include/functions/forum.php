@@ -361,7 +361,7 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 							$topic_data = topic($reply, '*');
 							
 							// is it closed?
-							if($topic_data['closed'] && !$user_data['admin'])
+							if($topic_data['closed'] && (!$user_data['admin'] || !$user_data['moderator']))
 							{
 								return lang('error_topic_closed');
 							}
@@ -434,8 +434,6 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 				// Insert into mysql and retrieve id.
 				$result = mysql_query($query);
 				
-				echo mysql_error();
-				
 				if($result)
 				{
 					// the id from the previous query
@@ -455,13 +453,13 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 					else
 					{
 						// How many replies?
-						$replies = intval(get_replies($reply));
+						$replies = intval(forum_count($reply));
 						
 						// Lets update it
 						$replies = $replies+1;
 						
 						// Woooo~ Last id for redirecting~
-						$page_numbers = (($replies / 20) - 1);
+						$page_numbers = (($replies / $config['messages_per_topic']) - 1);
 						$n = ceil($page_numbers);
 						
 						if ($n == -1)
@@ -479,8 +477,8 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 						// Update
 						$result = mysql_query($query);
 						
-						// Return last page number for redirect!
-						return $n;
+						// Return last page number and id for redirect.
+						return array('page' => $n, 'id' => $id);
 					}
 				}
 				else
