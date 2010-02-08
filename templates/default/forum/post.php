@@ -71,7 +71,7 @@
 <?php } } ?>
 <?php if($_SESSION['logged_in']) { ?>
 			<a href="message.php?page=<?php echo $page; ?>&amp;reply=<?php echo $topic['id']; ?>&amp;q=<?php echo $post['id']; ?>"><?php echo lang('quote'); ?></a> - 
-			<a id="qq" alt="<?php echo $post['id']; ?>" name="<?php echo $author['username']; ?>" value="<?php echo br2nl(stripslashes(str_replace('\r\n', '<br />', parse($post['message'], false)))); ?>"><?php echo lang('quick_quote'); ?></a>
+			<a id="qq" alt="<?php echo $post['id']; ?>" name="<?php echo $author['username']; ?>" value="<?php echo br2nl(parse($post['message'], false)); ?>"><?php echo lang('quick_quote'); ?></a>
 <?php } ?>
 		</td>
 	</tr>

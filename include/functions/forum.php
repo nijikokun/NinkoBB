@@ -669,7 +669,7 @@ function parse($text, $bbcode = true)
 	// Return base text!
 	if(!$bbcode)
 	{
-		return $text;
+		return html_entity_decode(stripslashes(str_replace('\r\n', '<br />', text)));
 	}
 	
 	// Do they allow bbcode or does this post allow bbcode?
