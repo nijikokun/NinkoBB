@@ -285,7 +285,7 @@ if($config['show_first_post'] || $page == 0)
 }
 
 // Normal Topics
-if($posts)
+if(is_array($posts))
 {
 	$count = 0;
 	$author = "";

@@ -13,6 +13,7 @@
 /**
  * Signs user in based on username or email
  * @global array 
+ * @global resource
  * @param boolean|string $username username or false
  * @param boolean|string $email user email or false
  * @param string $password user password
@@ -20,7 +21,7 @@
  */
 function login($username, $email = false, $password)
 {
-	global $config;
+	global $config, $database;
 	
 	// Error codes
 	//	904		- empty email
@@ -51,13 +52,13 @@ function login($username, $email = false, $password)
 			$query = "SELECT * FROM `users` WHERE `email` = '{$email}' AND `password` = '{$password}' LIMIT 1";
 			
 			// Return Data
-			$return = mysql_query( $query );
+			$return = $database->query( $query );
 			
 			// Exists?
-			if(mysql_num_rows( $return ) > 0)
+			if($database->num( $return ) > 0)
 			{
 				// Finally return Results
-				$user_data = mysql_fetch_array( $return );
+				$user_data = $database->fetch( $return );
 				
 				// Are they banned?
 				if($user_data['banned'])
@@ -129,13 +130,13 @@ function login($username, $email = false, $password)
 		$query = "SELECT * FROM `users` WHERE `username` = '{$username}' AND `password` = '{$password}' LIMIT 1";
 		
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 		
 		// Exists?
-		if(mysql_num_rows( $return ) > 0)
+		if($database->num( $return ) > 0)
 		{
 			// Finally return Results
-			$user_data = mysql_fetch_array( $return );
+			$user_data = $database->fetch( $return );
 			
 			// Are they banned?
 			if($user_data['banned'])
@@ -186,6 +187,7 @@ function login($username, $email = false, $password)
  *
  * Registration function, this controls the sign up functionality.
  * @global array
+ * @global resource
  * @param string $username username of user being added
  * @param string $password password of user being added
  * @param string $password_again password again to be checked against first $password
@@ -195,7 +197,7 @@ function login($username, $email = false, $password)
  */
 function add_user($username, $password, $password_again, $email, $age)
 {
-	global $config;
+	global $config, $database;
 	
 	// 904	- Registration complete, needs to validate email!
 	
@@ -260,18 +262,18 @@ function add_user($username, $password, $password_again, $email, $age)
 	
 	// Banned?
 	$query = "SELECT * FROM `users` WHERE `email` = '{$email}' AND `banned` = '1' LIMIT 1";
-	$result = mysql_query( $query );
+	$result = $database->query( $query );
 	
-	if(mysql_num_rows($result) > 0)
+	if($database->num($result) > 0)
 	{
 		return lang('error_banned_email');
 	}
 	
 	// Exist?
 	$query = "SELECT * FROM `users` WHERE `email` = '{$email}' LIMIT 1";
-	$result = mysql_query( $query );
+	$result = $database->query( $query );
 	
-	if(mysql_num_rows($result) > 0)
+	if($database->num($result) > 0)
 	{
 		return lang('error_email_used');
 	}
@@ -337,7 +339,7 @@ function add_user($username, $password, $password_again, $email, $age)
 	}
 	
 	// Return Data
-	if( $result = mysql_query( $query ) )
+	if( $result = $database->query( $query ) )
 	{
 		// Auto login
 		if(!$config['email_validation'])
@@ -378,12 +380,15 @@ function add_user($username, $password, $password_again, $email, $age)
  * Validates user
  *
  * Validates user using key sent to the user via email upon registration. Can be turned on/off
+ * @global resource
  * @param string $email email of user being validated
  * @param string $key key given at registration
  * @return integer|boolean
  */
 function validate_user($email, $key)
 {
+	global $database;
+	
 	// Error codes
 	//	904		- Email not given
 	//	905		- Invalid email
@@ -410,17 +415,16 @@ function validate_user($email, $key)
 		if(is_md5($key))
 		{
 			//Query
-			$query = "SELECT * FROM `users` WHERE `email` = '{$email}' AND `key` = '{$key}' LIMIT 1";
-			$result = mysql_query($query);
+			$result = $database->query( "SELECT * FROM `users` WHERE `email` = '{$email}' AND `key` = '{$key}' LIMIT 1" );
 			
-			if(mysql_num_rows($result) < 1)
+			if($database->num($result) < 1)
 			{
 				return 908;
 			}
 			else
 			{
 				// The user data
-				$user_data = mysql_fetch_array($result);
+				$user_data = $database->fetch($result);
 				
 				// update user fields
 				$active = update_user($user_data['id'], false, 'active', 1);
@@ -466,26 +470,29 @@ function validate_user($email, $key)
 
 /**
  * Checks to see what type of user we are dealing with
+ * @global resource
  * @param string $username username of user to be checked against
  * @return boolean|integer
  */
 function type($username)
 {
+	global $database;
+	
 	// Don't trust anyone
-	$username = mysql_real_escape_string($username);
+	$username = $database->escape($username);
 	
 	// Select only admin from the user table with the username given.
-	$data = mysql_query("SELECT * FROM `users` WHERE `username` = '{$username}' LIMIT 1");
+	$data = $database->query("SELECT * FROM `users` WHERE `username` = '{$username}' LIMIT 1");
 	
 	// Check to see if any rows were returned
-	if(mysql_num_rows($data) < 0)
+	if($database->num($data) < 0)
 	{
 		return false;
 	}
 	else
 	{
 		// There were, So return that they are infact an admin.
-		$data = mysql_fetch_array($data);
+		$data = $database->fetch($data);
 		
 		// before
 		load_hook('type_before');
@@ -514,16 +521,19 @@ function type($username)
 
 /**
  * Checks to see whether user exists by username
+ * @global resource
  * @param string $username username of user to be checked against
  * @return boolean|integer
  */
 function username_check($username)
 {
+	global $database;
+	
 	// Select only id from the users table with the given username.
-	$return = mysql_query( "SELECT `id` FROM `users` WHERE `username` = '{$username}' LIMIT 1" );
+	$return = $database->query( "SELECT `id` FROM `users` WHERE `username` = '{$username}' LIMIT 1" );
 	
 	// Exists?
-	if(mysql_num_rows( $return ) > 0)
+	if($database->num( $return ) > 0)
 	{
 		return true;
 	}
@@ -567,6 +577,7 @@ function username_style($data)
 /**
  * Grab user information using an id or username
  * @global array
+ * @global resource
  * @param boolean|integer $id id used to obtain data, or false for username
  * @param boolean|string $username username used to obtain data, or false for id
  * @param boolean|integer $limit limit how many users?
@@ -575,7 +586,7 @@ function username_style($data)
  */
 function user_data($id, $username = false, $current = false, $limit = 1)
 {
-	global $config;
+	global $config, $database;
 	
 	/**
 	 * Error codes
@@ -596,12 +607,12 @@ function user_data($id, $username = false, $current = false, $limit = 1)
 		if(alpha($username, 'alpha-underscore'))
 		{
 			// Select everything from the users table with the username given, limiting only one row.
-			$result = mysql_query( "SELECT * FROM `users` WHERE `username` = '{$username}' LIMIT {$limit}" );
+			$result = $database->query( "SELECT * FROM `users` WHERE `username` = '{$username}' LIMIT {$limit}" );
 			
 			// Was there a row returned?
-			if(mysql_num_rows($result) > 0)
+			if($database->num($result) > 0)
 			{
-				$result = mysql_fetch_array($result);
+				$result = $database->fetch($result);
 				$result['styled_name'] = username_style($result);
 				
 				return $result;
@@ -622,12 +633,12 @@ function user_data($id, $username = false, $current = false, $limit = 1)
 		if(alpha($id, 'numeric'))
 		{
 			// Select everything from the users table with the id given, limiting only one row.
-			$result = mysql_query( "SELECT * FROM `users` WHERE `id` = '{$id}' LIMIT {$limit}" );
+			$result = $database->query( "SELECT * FROM `users` WHERE `id` = '{$id}' LIMIT {$limit}" );
 			
 			// Was there a row returned?
-			if(mysql_num_rows($result) > 0)
+			if($database->num($result) > 0)
 			{
-				$result = mysql_fetch_array($result);
+				$result = $database->fetch($result);
 				$result['styled_name'] = username_style($result);
 				
 				return $result;
@@ -670,11 +681,14 @@ function user_data($id, $username = false, $current = false, $limit = 1)
 
 /**
  * Count all the users or users in a certain amount of days.
+ * @global resource
  * @param integer|boolean $days the amount of days you want the count to go back. e.g, a year would be 365 days.
  * @return integer
  */
 function count_users($days = false)
 {
+	global $database;
+	
 	if($days)
 	{
 		// make sure its a number
@@ -689,21 +703,22 @@ function count_users($days = false)
 	}
 	
 	// fetch the count
-	$result = mysql_query($query);
+	$result = $database->query($query);
 	
 	// return the amount of rows from the database
-	return mysql_num_rows($result);
+	return $database->num($result);
 }
 	
 /**
  * Checks to see if the user set by id is online.
  * @global array
+ * @global resource
  * @param integer $days the amount of days you want the count to go back. e.g, a year would be 365 days.
  * @return boolean
  */
 function is_online($id)
 {
-	global $config;
+	global $config, $database;
 	
 	// The time offset by the timeout set in configuration
 	$time_between = time() - $config['user_online_timeout'];
@@ -712,10 +727,10 @@ function is_online($id)
 	$id = intval($id);
 	
 	// Check to see if the users last seen is greater than the timeout
-	$result = mysql_query( "SELECT `id` FROM `users` WHERE `last_seen` > {$time_between} AND `id` = '{$id}' LIMIT 1" );
+	$result = $database->query( "SELECT `id` FROM `users` WHERE `last_seen` > {$time_between} AND `id` = '{$id}' LIMIT 1" );
 	
 	// Is there a row?
-	if(mysql_num_rows($result) < 1)
+	if($database->num($result) < 1)
 	{
 		return false;
 	}
@@ -728,12 +743,13 @@ function is_online($id)
 /**
  * Checks to see what users are online
  * @global array
+ * @global resource
  * @param boolean $admins check for admins only?
  * @return array
  */
 function users_online($admins = false)
 {
-	global $config;
+	global $config, $database;
 	
 	// The time between them
 	$time_between = time() - $config['user_online_timeout'];
@@ -750,21 +766,21 @@ function users_online($admins = false)
 	}
 	
 	// Fetch users last post
-	$result = mysql_query( $query );
+	$result = $database->query( $query );
 	
 	// is there a result?
-	if(mysql_num_rows($result) < 1)
+	if($database->num($result) < 1)
 	{
 		return array('count' => 0, 'users' => false);
 	}
 	else
 	{
 		// The overall count
-		$online['count'] = mysql_num_rows($result);
+		$online['count'] = $database->num($result);
 		$count = 1;
 		
 		// Making the list
-		while($row = mysql_fetch_array($result))
+		while($row = $database->fetch($result))
 		{
 			if($count == $online['count'])
 			{
@@ -791,6 +807,7 @@ function users_online($admins = false)
  * Updates user
  *
  * Updates the user using either the id, or username. Only updates one field at a time.
+ * @global resource
  * @param boolean|integer $id id used to update data, or false for username
  * @param boolean|string $username username used to update data, or false for id
  * @param string $field field on database to be updated
@@ -799,6 +816,8 @@ function users_online($admins = false)
  */
 function update_user($id, $username = false, $field, $value)
 {
+	global $database;
+	
 	/**
 	 * Error codes
 	 * 904		- Invalid username
@@ -816,13 +835,13 @@ function update_user($id, $username = false, $field, $value)
 		else
 		{
 			// Clean username
-			$username = mysql_clean($username);
+			$username = $database->escape($username);
 			
 			// Clean value, fields are clean as WE set them
-			$value = mysql_clean($value);
+			$value = $database->escape(stripslashes($value));
 			
 			// Insert Query / Result
-			$result = mysql_query( "UPDATE `users` SET `{$field}` = '{$value}' WHERE `username` = '{$username}' LIMIT 1" );
+			$result = $database->query( "UPDATE `users` SET `{$field}` = '{$value}' WHERE `username` = '{$username}' LIMIT 1" );
 			
 			// Did it work?
 			if(mysql_num_rows( $return ) > 0)
@@ -845,11 +864,11 @@ function update_user($id, $username = false, $field, $value)
 		else
 		{
 			// Clean value, fields are clean as WE set them
-			$value = mysql_clean($value);
+			$value = $database->escape(stripslashes($value));
 			
 			// Insert Query / Result
 			$query = "UPDATE `users` SET `{$field}` = '{$value}' WHERE `id` = '{$id}' LIMIT 1";
-			$result = mysql_query($query);
+			$result = $database->query($query);
 			
 			// Did it work?
 			if($result)
@@ -1024,8 +1043,8 @@ function avatar_upload($use, $_FILES)
 			$name = $use;
 		}
 		
-		@imagepng($old_img, $config['avatar_upload_path'].$name.'.png');
-		@chmod($config['avatar_upload_path'].$name.'.png',0777);
+		@imagepng($old_img, $config['avatar_upload_path'] . $name . '.png');
+		@chmod($config['avatar_upload_path'] . $name . '.png', 0777);
 		
 		return 'done';
 	}

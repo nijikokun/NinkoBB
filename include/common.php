@@ -13,18 +13,30 @@
  */
 define("IN_NK", true);
 
+// System Folder
+if (function_exists ( 'realpath' ) and @realpath ( dirname ( __FILE__ ) ) !== FALSE)
+{ 
+	$system_folder = str_replace ( '', '/', realpath ( dirname ( __FILE__ ) ) ); 
+}
+
+// Inclusion variables
+define ( 'EXT', 		'.' . pathinfo ( __FILE__, PATHINFO_EXTENSION ) );
+define ( 'BASEPATH', 	$system_folder . '/' );
+define ( 'FUNCTIONS', 	$system_folder . '/functions/' );
+define ( 'DATABASE',	$system_folder . '/database/' );
+
 /**
  * Include configuration
  */
-include("include/config.php");
+include(BASEPATH . "config" . EXT);
 
 
-if(file_exists('include/database.php'))
+if(file_exists(BASEPATH . "database" . EXT))
 {
 	/**
 	 * Include database configuration
 	 */
-	include("include/database.php");
+	include(BASEPATH . "database" . EXT);
 }
 else
 {
@@ -35,13 +47,13 @@ else
 /**
  * Include connection to database: MySQL
  */
-include("include/connect.php");
+include(BASEPATH . "connect" . EXT);
 
 // Parse Config
-$result = mysql_query("SELECT * FROM `config`");
+$result = $database->query("SELECT * FROM `config`");
 
 // Loop through the results and set the values.
-while($row = mysql_fetch_array($result))
+while($row = $database->fetch($result))
 {
 	if($row['value'] == "" || !$row['value'])
 	{
@@ -63,7 +75,7 @@ if($config['version'] != '1.2')
 /**
  * Include theme functions
  */
-include("include/functions/theme.php");
+include(FUNCTIONS . "theme" . EXT);
 
 // Load the theme
 load_theme();
@@ -71,7 +83,7 @@ load_theme();
 /**
  * Include language functions
  */
-include("include/functions/language.php");
+include(FUNCTIONS . "language" . EXT);
 
 // Include language file
 if(isset($config['language']) && $config['language'] != "")
@@ -102,22 +114,23 @@ $functions = array(
 // Include the functions
 foreach($functions as $file)
 {
-	include("include/functions/{$file}.php");
+	include(FUNCTIONS . $file . EXT);
 }
 
 // Fetch plugins
 $plugins = plugins();
 	
 // Fetch loaded plugins
-$result = mysql_query( "SELECT * FROM `plugins`" );
+$result = $database->query( "SELECT * FROM `plugins`" );
 
 // Load plugins
-if(mysql_num_rows($result) >= 1)
+if($database->num($result) >= 1)
 {
-	while($loading = mysql_fetch_array($result))
+	while($loading = $database->fetch($result))
 	{
 		foreach($plugins as $plugin)
 		{
+			if($load_plugins) { continue; }
 			// don't even think of loading error'd plugins
 			if($plugin['error']) { continue; }
 			if(!isset($plugin['name'])) { continue; }
@@ -125,7 +138,7 @@ if(mysql_num_rows($result) >= 1)
 			if($loading['name'] == $plugin['plugin'])
 			{
 				// Load the plugin
-				include('plugins/' . $plugin['file']);
+				include(BASEPATH . '../plugins/' . $plugin['file']);
 				
 				// That plugin has been loaded.
 				plugin_loaded($plugin['plugin']);
@@ -138,7 +151,7 @@ if(mysql_num_rows($result) >= 1)
 /**
  * Include Sessions
  */
-include("include/sessions.php");
+include(BASEPATH . "sessions" . EXT);
 
 // Common hook
 load_hook('common');

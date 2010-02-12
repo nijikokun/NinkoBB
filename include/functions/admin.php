@@ -14,16 +14,17 @@
 /**
  * Updates configuration setting inside of database
  * @global array already set $config
+ * @global resource
  * @param $key configuration item key
  * @param $value data to be updated
  * @return boolean
  */
 function update_config($key, $value)
 {
-	global $config;
+	global $config, $database;
 		
 	// Update
-	$result = mysql_query( "UPDATE `config` SET `value`='{$value}' WHERE `key`='{$key}'" );
+	$result = $database->query( "UPDATE `config` SET `value`='{$value}' WHERE `key`='{$key}'" );
 		
 	if($result)
 	{
@@ -41,6 +42,7 @@ function update_config($key, $value)
 
 /**
  * Fetches forum data based on input
+ * @global resource
  * @param boolean $posts check to see if we want posts and not topics / topics
  * @param integer $current data to be scanned for links and replaced
  * @param integer $limit data to be scanned for links and replaced
@@ -48,19 +50,21 @@ function update_config($key, $value)
  */
 function fetch_all($posts = false, $current = 0, $limit = 15)
 {
+	global $database;
+	
 	if($posts)
 	{
 		// Query
 		$query = "SELECT * FROM `forum` WHERE `reply` != 0 ORDER BY `time` DESC LIMIT {$current},{$limit}";
 
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 			
 		// Exists?
-		if(mysql_num_rows( $return ) > 0)
+		if($database->num( $return ) > 0)
 		{
 			// Finally return Results
-			while($row = mysql_fetch_array( $return ))
+			while($row = $database->fetch( $return ))
 			{
 				$rows[] = $row;
 			}
@@ -79,13 +83,13 @@ function fetch_all($posts = false, $current = 0, $limit = 15)
 		$query = "SELECT * FROM `forum` WHERE `reply` = 0 ORDER BY `updated` DESC LIMIT {$current},{$limit}";
 
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 			
 		// Exists?
-		if(mysql_num_rows( $return ) > 0)
+		if($database->num( $return ) > 0)
 		{
 			// Finally return Results
-			while($row = mysql_fetch_array( $return ))
+			while($row = $database->fetch( $return ))
 			{
 				$rows[] = $row;
 			}
@@ -102,17 +106,20 @@ function fetch_all($posts = false, $current = 0, $limit = 15)
 
 /**
  * Delete a whole topic and its posts.
+ * @global resource
  * @param $id topic identification number
  * @return string|boolean
  */
 function delete_topic($id)
 {
+	global $database;
+	
 	if(!alpha($id, 'numeric'))
 	{
 		return 'ID_INVALID'; exit;
 	}
 	
-	$topic = mysql_query( "DELETE FROM `forum` WHERE `id` = '{$id}' LIMIT 1" );
+	$topic = $database->query( "DELETE FROM `forum` WHERE `id` = '{$id}' LIMIT 1" );
 	
 	// Check to see if the topic was deleted, If not return error!
 	if($topic)
@@ -124,7 +131,7 @@ function delete_topic($id)
 		}
 		
 		// Guess not lets start deleting them.
-		$posts = mysql_query( "DELETE FROM `forum` WHERE `reply` = '{$id}'" );
+		$posts = $database->query( "DELETE FROM `forum` WHERE `reply` = '{$id}'" );
 		
 		if($posts)
 		{
@@ -143,17 +150,20 @@ function delete_topic($id)
 
 /**
  * Delete a post
+ * @global resource
  * @param $id post identification number
  * @return string|boolean
  */
 function delete_post($id)
 {
+	global $database;
+	
 	if(!alpha($id, 'numeric'))
 	{
 		return 'ID_INVALID';
 	}
 	
-	$post = mysql_query( "DELETE FROM `forum` WHERE `id` = '{$id}' LIMIT 1" );
+	$post = $database->query( "DELETE FROM `forum` WHERE `id` = '{$id}' LIMIT 1" );
 	
 	// Check to see if the topic was deleted, If not return error!
 	if($post)
@@ -168,17 +178,20 @@ function delete_post($id)
 
 /**
  * Ban a user
+ * @global resource
  * @param $id user identification number
  * @return string|boolean
  */
 function ban_user($id)
 {
+	global $database;
+	
 	if(!alpha($id, 'numeric'))
 	{
 		return 'ID_INVALID';
 	}
 	
-	$banned = mysql_query( "UPDATE `users` SET `banned` = '1' WHERE `id` = '{$id}' LIMIT 1" );
+	$banned = $database->query( "UPDATE `users` SET `banned` = '1' WHERE `id` = '{$id}' LIMIT 1" );
 	
 	// Check to see if the user was banned.
 	if($banned)
@@ -193,17 +206,20 @@ function ban_user($id)
 
 /**
  * Unban a user
+ * @global resource
  * @param $id user identification number
  * @return string|boolean
  */
 function unban_user($id)
 {
+	global $database;
+	
 	if(!alpha($id, 'numeric'))
 	{
 		return 'ID_INVALID';
 	}
 	
-	$banned = mysql_query( "UPDATE `users` SET `banned` = '0' WHERE `id` = '{$id}' LIMIT 1" );
+	$banned = $database->query( "UPDATE `users` SET `banned` = '0' WHERE `id` = '{$id}' LIMIT 1" );
 	
 	// Check to see if the user was banned.
 	if($banned)

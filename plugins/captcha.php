@@ -136,19 +136,13 @@ function insert_captcha()
 	
 	captcha();
 	
-	echo '<table width="80%" cellpadding="5" cellspacing="0" class="post">' ."\n";
 		echo '<tr>'. "\n";
-			echo '<td>';
+			echo '<td class="post captcha" colspan="2">';
 				echo '<label for="captcha">' . lang('captcha_title') . '</label>';
-			echo '</td>' . "\n";
-		echo '</tr>' . "\n";
-		echo '<tr>'. "\n";
-			echo '<td>';
 				echo '<table><tr><td width="18%"><image src="plugins/captcha/secure.jpg" alt="security" /></td>';
 				echo '<td><input type="text" id="captcha" name="captcha" style="width: 99.3%;" class="border" /></td></tr></table>';
 			echo '</td>' . "\n";
 		echo '</tr>' . "\n";
-	echo '</table>';
 }
 
 /**

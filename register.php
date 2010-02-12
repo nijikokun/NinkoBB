@@ -73,7 +73,11 @@ if(isset($_POST['submit']))
 		}
 	}
 }
-else if(isset($_GET['e']))
+
+// Header
+include($config['template_path'] . "header.php");
+
+if(isset($_GET['e']))
 {
 	$result = validate_user($_GET['e'], $_GET['k']);
 	
@@ -107,7 +111,7 @@ else if(isset($_GET['e']))
 }
 
 // Header
-include($config['template_path'] . "header.php");
+include($config['template_path'] . "navigation.php");
 
 // Registration Form
 include($config['template_path'] . "user/register.php");

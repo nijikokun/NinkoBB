@@ -63,11 +63,11 @@ else if(isset($login_cookie))
 	$password = mysql_clean($data[1]);
 	
 	$sql = "SELECT * FROM users WHERE username = '{$username}' AND password = '{$password}'";
-	$result = @mysql_query($sql) or die("No.");
+	$result = @$database->query($sql) or die("No.");
 		
 	// Huge error
 	// Cookies don't match and no session, so tell them to logout!
-	if(mysql_num_rows($result) < 1)
+	if($database->num($result) < 1)
 	{
 		session_destroy();
 		unset($username);
@@ -77,10 +77,10 @@ else if(isset($login_cookie))
 		
 		print_out(lang('error_with_cookies'), lang_parse('error_cookie_body', array($config['url_path'] . '/logout.php')), false);
 	}
-	else if(mysql_num_rows($result) > "0")
+	else if($database->num($result) > 0)
 	{
 		// Get the users data
-		$user_data = mysql_fetch_array($result);
+		$user_data = $database->fetch($result);
 		
 		// What is this user classified as?
 		$type = type($user_data['username']);

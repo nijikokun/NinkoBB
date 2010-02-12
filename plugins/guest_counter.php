@@ -70,20 +70,24 @@ $config['bot_list'] = array(
 
 /**
  * Installs Guest counter
+ * @global resource
  */
 function install_guest_counter()
 {
+	global $database;
+	
 	// Create the table `guests`
-	mysql_query("CREATE TABLE IF NOT EXISTS `guests` (`ip` text NOT NULL, `visit` text NOT NULL, `type` text NOT NULL) ENGINE=MyISAM DEFAULT CHARSET=latin1;") or die(mysql_error());
+	$database->query("CREATE TABLE IF NOT EXISTS `guests` (`ip` text NOT NULL, `visit` text NOT NULL, `type` text NOT NULL) ENGINE=MyISAM DEFAULT CHARSET=latin1;") or die(mysql_error());
 }
 
 /**
  * Installs Guest counter
+ * @global resource
  */
 function uninstall_guest_counter()
 {
 	// Delete
-	mysql_query("DROP TABLE IF EXISTS `guests`") or die(mysql_error());
+	$database->query("DROP TABLE IF EXISTS `guests`") or die(mysql_error());
 }
 
 /**
@@ -98,7 +102,7 @@ function is_bot($referrer)
 	
 	foreach($config['bot_list'] as $key => $bot)
 	{
-		if(preg_match("#{$bot}#i", $referrer))
+		if(preg_match("#{$bot}#iU", $referrer))
 		{
 			return $key;
 		}
@@ -110,18 +114,18 @@ function is_bot($referrer)
 /**
  * Cleans up the guest array
  * @global array
- * @global array
+ * @global resource
  */
 function update_guests()
 {
-	global $config;
+	global $config, $database;
 	
 	// The time between them
 	$time_between = time() - $config['user_online_timeout'];
 	$time = time();
 	
 	// Clean up the database of old guests
-	$result = mysql_query("DELETE FROM `guests` WHERE `visit` < '{$time_between}'");
+	$result = $database->query("DELETE FROM `guests` WHERE `visit` < '{$time_between}'");
 	
 	// Insert a new one
 	if(!$_SESSION['logged_in'])
@@ -142,17 +146,17 @@ function update_guests()
 		$host = gethostname();
 		
 		// Check to see if they already exist.
-		$result = mysql_query( "SELECT * FROM `guests` WHERE `ip` = '{$host}'" );
+		$result = $database->query( "SELECT * FROM `guests` WHERE `ip` = '{$host}'" );
 
-		if(mysql_num_rows($result) < 1)
+		if($database->num($result) < 1)
 		{
 			// Insert them in there.
-			mysql_query("INSERT INTO `guests` SET `visit` = '{$time}', `ip` = '{$host}', `type` = '{$type}'");
+			$database->query("INSERT INTO `guests` SET `visit` = '{$time}', `ip` = '{$host}', `type` = '{$type}'");
 		}
 		else
 		{
 			// Insert them in there.
-			mysql_query("UPDATE `guests` SET `visit` = '{$time}' WHERE `ip` = '{$host}'");
+			$database->query("UPDATE `guests` SET `visit` = '{$time}' WHERE `ip` = '{$host}'");
 		}
 	}
 }
@@ -160,42 +164,43 @@ function update_guests()
 /**
  * Checks to see what guests are online, can check for all together or bots alone.
  * @global array
+ * @global resource
  * @param boolean $all check for all together?
  * @param boolean $bots just for bots?
  * @return array
  */
 function guests_online($all = false, $bots = false)
 {
-	global $config;
+	global $config, $database;
 	
 	if($all)
 	{
-		$result = mysql_query( "SELECT * FROM `guests` ORDER BY `visit`" );
+		$result = $database->query( "SELECT * FROM `guests` ORDER BY `visit`" );
 	}
 	else if($bots)
 	{
-		$result = mysql_query( "SELECT * FROM `guests` WHERE `type` != 'GUEST' ORDER BY `visit`" );
+		$result = $database->query( "SELECT * FROM `guests` WHERE `type` != 'GUEST' ORDER BY `visit`" );
 	}
 	else
 	{
-		$result = mysql_query( "SELECT * FROM `guests` WHERE `type` = 'GUEST' ORDER BY `visit`" );
+		$result = $database->query( "SELECT * FROM `guests` WHERE `type` = 'GUEST' ORDER BY `visit`" );
 	}
 	
 	// is there a result?
-	if(mysql_num_rows($result) < 1)
+	if($database->num($result) < 1)
 	{
 		return array('count' => 0, 'users' => false);
 	}
 	else
 	{
 		// The overall count
-		$online['count'] = mysql_num_rows($result);
+		$online['count'] = $database->num($result);
 		$count = 1;
 		
 		// Making the list
 		if($bot || $all)
 		{
-			while($row = mysql_fetch_array($result))
+			while($row = $database->fetch($result))
 			{
 				if($row['type'] != "GUEST")
 				{

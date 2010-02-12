@@ -20,12 +20,12 @@ function language($language)
 	if(in_array($language, languages()))
 	{
 		// Include language
-		include('include/languages/' . $language . '.php');
+		include(BASEPATH . 'languages/' . $language . EXT);
 	}
 	else
 	{
 		// Include language
-		include('include/languages/en.php');
+		include(BASEPATH . 'languages/en' . EXT);
 	}
 	
 	// Return language
@@ -92,7 +92,7 @@ function lang_parse($key, $args)
 function languages($html = false)
 {
 	// Fetch the files
-	$handle = @opendir('include/languages/') or die("Unable to open 'include/languages/'");
+	$handle = @opendir(BASEPATH .'languages/') or die("Unable to open 'include/languages/'");
 	$languages = array();
 	
 	while ($file = readdir($handle))

@@ -206,6 +206,11 @@ function character_limiter($str, $n = 500, $end_char = '&#8230;')
 	}
 }
 
+function substru($str,$from,$len)
+{
+    return preg_replace('#^(?:[\x00-\x7F]|[\xC0-\xFF][\x80-\xBF]+){0,'. $from .'}'.'((?:[\x00-\x7F]|[\xC0-\xFF][\x80-\xBF]+){0,'. $len .'}).*#s','$1', $str);
+}
+
 /**
  * Returns a string representation of the date, of differing format depending on how recent the date is.
  * @param integer $_date unix timestamp created with time(), mktime(), strtotime()

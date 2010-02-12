@@ -40,7 +40,6 @@ $lang = Array();
 		$lang['NAVIGATION']					= "Navigation";
 		
 	// ** Plugin ** //
-	
 		// ** GUESTS PLUGIN ** //
 			$lang['GUESTS_ONLINE']			= "Guests online";
 			$lang['BOTS_ONLINE']			= "Bots online";
@@ -49,8 +48,20 @@ $lang = Array();
 		// ** CAPTCHA ** //
 			$lang['CAPTCHA_TITLE']			= "Bot check (What is the answer?)";
 			$lang['CAPTCHA_FALSE']			= "Wrong answer for captcha!";
-
-		
+			
+		// ** TITLES ** //
+			$lang['TITLE']					= "title";
+			$lang['TITLE_C']				= "Title";
+			$lang['REVISION']				= "revision";
+			$lang['REVISION_C']				= "Revision";
+			$lang['REVISIONS_C']			= "Revisions";
+			$lang['REVISIONS_TO_TITLE']		= "Revisions to title";
+			$lang['ERROR_TITLE']			= "Invalid title given!";
+			$lang['BANNED_TITLE']			= "That title is banned!";
+			$lang['INVALID_REVISION']		= "That revision was not found!";
+			$lang['ERROR_TITLE_TOO_LONG']	= "Title was too long, 2 -> 32 chars only!";
+			$lang['ERROR_TITLE_TOO_SHORT']	= "Title was too short, 2 -> 32 chars only!";
+			
 	// ** Pagination ** //
 		$lang['PAGE']						= "page";
 		$lang['PAGES']						= "pages";
@@ -194,8 +205,6 @@ $lang = Array();
 		$lang['SITE_THEME']					= "Site Theme";
 		$lang['MODERATOR']					= "moderator";
 		
-		
-		
 	// ** Error / Success ** //
 		$lang['ERROR']						= "Error";
 		$lang['ERROR_TOPIC_CLOSED']			= "Topic is closed. You are not authorized to post to this topic!";
@@ -236,11 +245,8 @@ $lang = Array();
 		$lang['ERROR_ALREADY_LOADED'] 		= "Plugin is already active!";
 		$lang['ERROR_PLUGIN_NAME']			= "Plugin contains invalid characters in the name!";
 		$lang['ERROR_PLUGIN_NO_NAME']		= "Plugin has no name to use!";
-
-
 		$lang['ERROR_UNKNOWN']				= "Error unknown.";
 	
-		
 		$lang['SUCCESS_DELETED_TOPIC']		= "Successfully deleted topic!";
 		$lang['SUCCESS_DELETED_POST']		= "Successfully deleted post!";
 		$lang['SUCCESS_EDITED_POST']		= "Successfully edited post!";
@@ -257,6 +263,9 @@ $lang = Array();
 		$lang['SUCCESS_REG_EMAIL_VALIDATE']	= "Please check your mail to activate your account!";
 		$lang['SUCCESS_REG_EMAIL_MSG']		= "We sent an activation email to your email address: %s.<br />If you do not get the email make sure to check your spam inbox to make sure. If you still have not yet gotten it within 24 hours please contact an administrator to get help with activating your account.";
 			
+		// 1.3 Additions
+		$lang['KEY']						= "key";
+		$lang['KEY_C']						= "Key";
 		
 	// ** User Related ** //
 		$lang['WELCOME_BACK']				= "Welcome back";

@@ -12,6 +12,7 @@
 
 /**
  * Fetches forum data based on input
+ * @global resource
  * @param boolean|integer $forum data to be scanned for links and replaced
  * @param boolean $sticky true: searches stickies, false: excludes stickies
  * @param boolean|integer $topic data to be scanned for links and replaced
@@ -23,6 +24,8 @@
  */
 function fetch($forum = false, $sticky = false, $topic = false, $order_by = 'updated', $order = 'DESC', $current = 0, $limit = 15)
 {
+	global $database;
+	
 	// Fetch topics
 	if(is_numeric($forum))
 	{
@@ -37,13 +40,13 @@ function fetch($forum = false, $sticky = false, $topic = false, $order_by = 'upd
 		}
 
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 		
 		// Exists?
-		if(mysql_num_rows( $return ) > 0)
+		if($database->num( $return ) > 0)
 		{
 			// Finally return Results
-			while($topic = mysql_fetch_array( $return ))
+			while($topic = $database->fetch( $return ))
 			{
 				$topics[] = $topic;
 			}
@@ -62,13 +65,13 @@ function fetch($forum = false, $sticky = false, $topic = false, $order_by = 'upd
 		$query = "SELECT  * FROM `forum` WHERE (`id` = {$topic}) OR (`reply` = {$topic}) ORDER BY `{$order_by}` {$order} LIMIT {$current},{$limit}";
 
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 		
 		// Exists?
-		if(mysql_num_rows( $return ) > 0)
+		if($database->num( $return ) > 0)
 		{
 			// Finally return Results
-			while($topic = mysql_fetch_array( $return ))
+			while($topic = $database->fetch( $return ))
 			{
 				$topics[] = $topic;
 			}
@@ -85,22 +88,25 @@ function fetch($forum = false, $sticky = false, $topic = false, $order_by = 'upd
 
 /**
  * Fetches post data by id and custom select
+ * @global resource
  * @param integer $topic id used to retrieve topic / post data
  * @param string $data fields to be retrieved from database
  * @return array|boolean
  */
 function topic($topic, $data = '*')
 {
+	global $database;
+	
 	// Query
 	$query = "SELECT {$data} FROM `forum` WHERE `id` = '{$topic}' LIMIT 1";
 	
 	// Return Data
-	$return = mysql_query( $query );
+	$return = $database->query( $query );
 
 	// Return the data
-	if(mysql_num_rows( $return ) > 0)
+	if($database->num( $return ) > 0)
 	{
-		return mysql_fetch_array( $return );
+		return $database->fetch( $return );
 	}
 	else
 	{
@@ -110,6 +116,7 @@ function topic($topic, $data = '*')
 
 /**
  * Fetches the last post data in a topic
+ * @global resource
  * @param integer $topic id used to retrieve reply data
  * @param integer $id user id to retrieve last post from that user
  * @param string $data fields to be retrieved from database
@@ -117,18 +124,20 @@ function topic($topic, $data = '*')
  */
 function last_post($topic, $id = false, $data = '*')
 {
+	global $database;
+	
 	if($id)
 	{
 		// Query
 		$query = "SELECT {$data} FROM `forum` WHERE `starter_id` = '{$id}' ORDER BY `time` DESC LIMIT 1";
 		
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 		
 		// Return the data
-		if(mysql_num_rows( $return ) > 0)
+		if($database->num( $return ) > 0)
 		{
-			return mysql_fetch_array( $return );
+			return $database->fetch( $return );
 		}
 		else
 		{
@@ -141,12 +150,12 @@ function last_post($topic, $id = false, $data = '*')
 		$query = "SELECT {$data} FROM `forum` WHERE `reply` = '{$topic}' ORDER BY `time` DESC LIMIT 1";
 		
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 		
 		// Return the data
-		if(mysql_num_rows( $return ) > 0)
+		if($database->num( $return ) > 0)
 		{
-			return mysql_fetch_array( $return );
+			return $database->fetch( $return );
 		}
 		else
 		{
@@ -157,20 +166,23 @@ function last_post($topic, $id = false, $data = '*')
 
 /**
  * Return replies in topic. Currently a good way to see if topic exists.
+ * @global resource
  * @param integer $topic id used to retrieve reply data
  * @return array|boolean
  */
 function get_replies($topic)
 {
+	global $database;
+	
 	// Query
 	$query = "SELECT replies FROM `forum` WHERE `id` = {$topic}";
 	
 	// Return Data
-	$return = mysql_query( $query );
+	$return = $database->query( $query );
 	
 	if($return)
 	{
-		$topic_data = mysql_fetch_array($return);
+		$topic_data = $database->fetch($return);
 		
 		// Return that reply data!
 		return $topic_data['replies'];
@@ -183,6 +195,7 @@ function get_replies($topic)
 
 /**
  * Count replies for the forum or user
+ * @global resource
  * @param integer $topic id used to retrieve reply data
  * @param integer $user id used to retrieve reply data for user
  * @param boolean $all count all the replies?
@@ -193,16 +206,18 @@ function get_replies($topic)
  */
 function forum_count($topic, $user = false, $all = false, $exclude_stickies = false, $posts = false, $today = false)
 {
+	global $database;
+	
 	if($all)
 	{
 		// Query
 		$query = "SELECT id FROM `forum`";
 		
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 		
 		// Return the count
-		return mysql_num_rows( $return );
+		return $database->num( $return );
 	}
 	
 	if($posts)
@@ -218,10 +233,10 @@ function forum_count($topic, $user = false, $all = false, $exclude_stickies = fa
 		}
 		
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 		
 		// Return the count
-		return mysql_num_rows( $return );
+		return $database->num( $return );
 	}
 	
 	if($topic === "*")
@@ -252,10 +267,10 @@ function forum_count($topic, $user = false, $all = false, $exclude_stickies = fa
 		}
 		
 		// Return Data
-		$return = mysql_query( $query );
+		$return = $database->query( $query );
 		
 		// Return the count
-		return mysql_num_rows( $return );
+		return $database->num( $return );
 	}
 	else
 	{
@@ -265,10 +280,10 @@ function forum_count($topic, $user = false, $all = false, $exclude_stickies = fa
 			$query = "SELECT id FROM `forum` WHERE `reply` = {$topic}";
 			
 			// Return Data
-			$return = mysql_query( $query );
+			$return = $database->query( $query );
 			
 			// Return the count
-			return mysql_num_rows( $return );
+			return $database->num( $return );
 		}
 		else if($user)
 		{
@@ -278,10 +293,10 @@ function forum_count($topic, $user = false, $all = false, $exclude_stickies = fa
 				$query = "SELECT id FROM `forum` WHERE `starter_id` = '{$user}'";
 				
 				// Return Data
-				$return = mysql_query( $query );
+				$return = $database->query( $query );
 				
 				// Return the count
-				return mysql_num_rows( $return );
+				return $database->num( $return );
 			}
 			else
 			{
@@ -295,6 +310,7 @@ function forum_count($topic, $user = false, $all = false, $exclude_stickies = fa
  * Allows creation of topics, stuck or closed, and posts
  * @global array
  * @global array
+ * @global resource
  * @param string $topic post subject
  * @param string $content post content
  * @param integer $reply id of topic we are replying to
@@ -304,7 +320,7 @@ function forum_count($topic, $user = false, $all = false, $exclude_stickies = fa
  */
 function post($topic, $content, $reply = false, $sticky = false, $closed = false)
 {
-	global $config, $user_data;
+	global $config, $user_data, $database;
 	
 	// The time. milliseconds / seconds may change.
 	$time = time();
@@ -402,10 +418,10 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 					$query = "SELECT `time` FROM `forum` WHERE `starter_id` = '{$user_data['id']}' AND `time` > {$time_between}";
 					
 					// Fetch users last post
-					$result = mysql_query( $query );
+					$result = $database->query( $query );
 					
 					// is there a result?
-					if(mysql_num_rows($result) > 0)
+					if($database->num($result) > 0)
 					{
 						return lang('error_flood_detection');
 					}
@@ -431,12 +447,12 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 				);
 				
 				// Insert into mysql and retrieve id.
-				$result = mysql_query($query);
+				$result = $database->query($query);
 				
 				if($result)
 				{
 					// the id from the previous query
-					$id = mysql_insert_id();
+					$id = $database->insert_id();
 					
 					// users new post count
 					$new_post_count = $user_data['posts']+1;
@@ -474,7 +490,7 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
 						$query = "UPDATE `forum` SET `updated`='{$time}', `replies`='{$replies}' WHERE id = '{$reply}'";
 						
 						// Update
-						$result = mysql_query($query);
+						$result = $database->query($query);
 						
 						// Return last page number and id for redirect.
 						return array('page' => $n, 'id' => $id);
@@ -506,6 +522,7 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
  * Allows updating of topics, stuck or closed, and posts
  * @global array
  * @global array
+ * @global resource
  * @param integer $id post we are editing
  * @param string $topic post subject
  * @param string $content post content
@@ -516,7 +533,7 @@ function post($topic, $content, $reply = false, $sticky = false, $closed = false
  */
 function update($id, $topic, $content, $sticky = false, $closed = false)
 {
-	global $config, $user_data;
+	global $config, $user_data, $database;
 	
 	// The time. milliseconds / seconds may change.
 	$time = time();
@@ -590,7 +607,7 @@ function update($id, $topic, $content, $sticky = false, $closed = false)
 				$content = htmlspecialchars( $content );
 				
 				// Update the post already inside of the database with the new data
-				$result = mysql_query( "UPDATE `forum` SET `subject`='{$topic}', `message`='{$content}', `updated`='{$time}', `replies`='{$replies}' WHERE id = '{$id}'" ) or die(mysql_error());
+				$result = $database->query( "UPDATE `forum` SET `subject`='{$topic}', `message`='{$content}', `updated`='{$time}', `replies`='{$replies}' WHERE id = '{$id}'" ) or die(mysql_error());
 					
 				// Did it work?
 				if($result)
@@ -638,10 +655,10 @@ function update($id, $topic, $content, $sticky = false, $closed = false)
 		else
 		{
 			// Clean value, fields are clean as WE set them
-			$value = mysql_clean($value);
+			$value = $database->escape($value);
 				
 			// Update the forum with the new value
-			$result = mysql_query( "UPDATE `forum` SET `{$field}` = '{$value}' WHERE `id` = '{$id}' LIMIT 1" );
+			$result = $database->query( "UPDATE `forum` SET `{$field}` = '{$value}' WHERE `id` = '{$id}' LIMIT 1" );
 				
 			// Did it work?
 			if($result)
@@ -669,7 +686,7 @@ function parse($text, $bbcode = true)
 	// Return base text!
 	if(!$bbcode)
 	{
-		return html_entity_decode(stripslashes(str_replace('\r\n', '<br />', text)));
+		return html_entity_decode(stripslashes(str_replace('\r\n', '<br />', $text)));
 	}
 	
 	// Do they allow bbcode or does this post allow bbcode?

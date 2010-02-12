@@ -22,18 +22,18 @@ function load_theme()
 	{
 		if(in_array($config['theme'], themes()))
 		{
-			$config['template_path'] = "templates/" . $config['theme'] . "/";
+			$config['template_path'] = BASEPATH . "../templates/" . $config['theme'] . "/";
 			$config['template_url'] = $config['url_path'] . "/templates/" . $config['theme'] . "/";
 		}
 		else
 		{
-			$config['template_path'] = "templates/default/";
+			$config['template_path'] = BASEPATH . "../templates/default/";
 			$config['template_url'] = $config['url_path'] . "/templates/default/";
 		}
 	}
 	else
 	{
-		$config['template_path'] = "templates/default/";
+		$config['template_path'] = BASEPATH . "../templates/default/";
 		$config['template_url'] = $config['url_path'] . "/templates/default/";
 	}
 }
@@ -46,12 +46,12 @@ function load_theme()
 function themes($html = false)
 {
 	// Fetch the dirs
-	$handle = @opendir('templates/') or die("Unable to open 'templates/'");
+	$handle = @opendir(BASEPATH . '../templates/') or die("Unable to open 'templates/'");
 	$themes = array();
 	
 	while ($file = readdir($handle))
 	{
-		if (filetype('templates/' . $file) === 'dir' && $file != "." && $file != "..")
+		if (filetype(BASEPATH . '../templates/' . $file) === 'dir' && $file != "." && $file != "..")
 		{ 
 			$themes[] = $file;
 		}

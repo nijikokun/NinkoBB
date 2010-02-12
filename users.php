@@ -176,91 +176,81 @@ else if($action == "profile")
 {
 	if(isset($_POST['profile']))
 	{
-		if($_POST['first_name'] != $user_data['first_name'])
+		foreach($_POST as $key => $data)
 		{
-			if(alpha($_POST['first_name'], 'alpha-space') || $_POST['first_name'] == "")
+			$data = trim($data);
+			
+			// Check the key
+			if(!alpha($key, 'alpha-underscore'))
 			{
-				update_user($user_data['id'], false, 'first_name', $_POST['first_name']);
+				$errors[$key] = lang_parse('error_invalid_chars', array(lang('key_c')));
 			}
-			else
+			
+			if(!$errors)
 			{
-				$error = lang_parse('error_invalid_chars', array(lang('first_name')));
+				if($key == "interests" || $key == "location")
+				{
+					$data = strip_tags($data);
+				}
+				
+				if($data != $user_data[$key])
+				{
+					// Check what the key is for certain checks
+					if($key == "interests" || $key == "location")
+					{
+						// Check the data, output error into errors array if there was an error.
+						if(alpha($data, 'alpha-extra') || $data == "")
+						{
+							update_user($user_data['id'], false, $key, $data);
+						}
+						else
+						{
+							$errors[$key] = lang_parse('error_invalid_chars', array(lang($key)));
+						}
+					}
+					else if($key == "msn")
+					{
+						// Check the data, output error into errors array if there was an error.
+						if(alpha($data, 'email') || $data == "")
+						{
+							update_user($user_data['id'], false, $key, $data);
+						}
+						else
+						{
+							$errors[$key] = lang('error_msn_handle');
+						}
+					}
+					else if($key == "aim")
+					{
+						// Check the data, output error into errors array if there was an error.
+						if(alpha($data, 'alpha-spacers') || $data == "")
+						{
+							update_user($user_data['id'], false, $key, $data);
+						}
+						else
+						{
+							$errors[$key] = lang_parse('error_invalid_chars', array(lang($key)));
+						}
+					}
+					else if($key == "first_name" || $key == "last_name")
+					{
+						// Check the data, output error into errors array if there was an error.
+						if(alpha($data, 'alpha-space') || $data == "")
+						{
+							update_user($user_data['id'], false, $key, $data);
+						}
+						else
+						{
+							$errors[$key] = lang_parse('error_invalid_chars', array(lang($key)));
+						}
+					}
+					
+					load_hook('user_profile_post');
+				}
 			}
 		}
 		
-		if($_POST['last_name'] != $user_data['last_name'] && !$error)
-		{
-			if(alpha($_POST['last_name'], 'alpha-space') || $_POST['last_name'] == "")
-			{
-				update_user($user_data['id'], false, 'last_name', $_POST['last_name']);
-			}
-			else
-			{
-				$error = lang_parse('error_invalid_chars', array(lang('last_name')));
-			}
-		}
-		
-		if($_POST['location'] != $user_data['location'] && !$error)
-		{
-			if(alpha($_POST['location'], 'alpha-extra') || $_POST['location'] == "")
-			{
-				update_user($user_data['id'], false, 'location', $_POST['location']);
-			}
-			else
-			{
-				$error = lang_parse('error_invalid_chars', array(lang('location')));
-			}
-		}
-		
-		if($_POST['gender'] != $user_data['sex'] && !$error) 
-		{
-			if(alpha($_POST['gender'], 'alpha'))
-			{
-		    	update_user($user_data['id'], false, 'sex', $_POST['gender']);
-		    }
-		    else
-		    {
-		    	$error = lang_parse('error_invalid_chars', array(lang('sex')));
-		    }
-		}
-		
-		if($_POST['aim'] != $user_data['aim'] && !$error)
-		{
-			if(alpha($_POST['aim'], 'alpha-spacers') || $_POST['aim'] == "")
-			{
-				update_user($user_data['id'], false, 'aim', $_POST['aim']);
-			}
-			else
-			{
-				$error = lang_parse('error_invalid_chars', array(lang('aim')));
-			}
-		}
-		
-		if($_POST['msn'] != $user_data['msn'] && !$error)
-		{
-			if(is_email($_POST['msn']) || $_POST['msn'] == "")
-			{
-				update_user($user_data['id'], false, 'msn', $_POST['msn']);
-			}
-			else
-			{
-				$error = lang('error_msn_handle');
-			}
-		}
-		
-		if($_POST['interests'] != $user_data['interests'] && !$error)
-		{
-			if(alpha($_POST['interests'], 'alpha-extra') || $_POST['interests'] == "")
-			{
-				update_user($user_data['id'], false, 'interests', $_POST['interests']);
-			}
-			else
-			{
-				$error = lang_parse('error_invalid_chars', array(lang('interests')));
-			}
-		}
-		
-		if(!$error)
+		if(!$error && !$errors)
 		{
 			$success = lang('success_update_profile');
 			

@@ -17,11 +17,14 @@ $hooks = array();
 
 /**
  * Turns a plugin on and creates the row to show loading
+ * @global resource
  * @param string $name name of plugin
  * @return boolean|string
  */
 function load_plugin($name)
 {
+	global $database;
+	
 	if($name == "")
 	{
 		return 'error_plugin_no_name';
@@ -33,10 +36,10 @@ function load_plugin($name)
 	else if(!already_loaded($name))
 	{
 		// Insert plugin
-		mysql_query("INSERT INTO `plugins` SET `name` = '{$name}'");
+		$database->query("INSERT INTO `plugins` SET `name` = '{$name}'");
 		
 		// Include
-		include('plugins/' . $name . '.php');
+		include(BASEPATH . '../plugins/' . $name . '.php');
 				
 		// That plugin has been loaded.
 		plugin_loaded($name);
@@ -60,19 +63,22 @@ function load_plugin($name)
 
 /**
  * Is that plugin already loaded?
+ * @global resource
  * @param string $name name of plugin
  * @return boolean
  */
 function already_loaded($name)
 {
+	global $database;
+	
 	// Insert plugin
-	$result = mysql_query("SELECT * FROM `plugins` WHERE `name` = '{$name}'");
+	$result = $database->query("SELECT * FROM `plugins` WHERE `name` = '{$name}'");
 	
 	// Is it even there?
 	if($result)
 	{
 		// Return true
-		if(mysql_num_rows($result) > 0)
+		if($database->num($result) > 0)
 		{
 			return true;
 		}
@@ -83,12 +89,13 @@ function already_loaded($name)
 
 /**
  * Turns a plugin off and deletes the row it was loaded on
+ * @global resource
  * @param string $name name of plugin
  * @return boolean|string
  */
 function unload_plugin($name)
 {
-	global $plugins_loaded;
+	global $database, $plugins_loaded;
 	
 	if($name == "")
 	{
@@ -111,7 +118,7 @@ function unload_plugin($name)
 		}
 		
 		// Uninstall plugin
-		mysql_query("DELETE FROM `plugins` WHERE `name` = '{$name}'");
+		$database->query("DELETE FROM `plugins` WHERE `name` = '{$name}'");
 		
 		// Uninstall plugin
 		unset($plugins_loaded[$name]);
@@ -127,7 +134,7 @@ function unload_plugin($name)
  */
 function plugins()
 {
-	$files = read_files('plugins/');
+	$files = read_files(BASEPATH . '../plugins/');
 	
 	foreach ($files as $plugin)
 	{
@@ -181,28 +188,29 @@ function get_plugin_data($path)
 		
 	if($path_ext == "php")
 	{
-		$plugin_data = implode( '', file( 'plugins/' . $path));
+		$plugin_data = implode( '', file( BASEPATH . '../plugins/' . $path));
 			
 		// fetch data
 		preg_match( '|Plugin Name:(.*)$|mi', $plugin_data, $plugin_name );
 		preg_match( '|Description:(.*)$|mi', $plugin_data, $description );
 		preg_match( '|Author:(.*)$|mi', $plugin_data, $author_name );
 		preg_match( '|Author URI:(.*)$|mi', $plugin_data, $author_uri );
+		preg_match( '|Version:(.*)$|mi', $plugin_data, $version );
 		
 		$plugin_name[1] = trim($plugin_name[1]);
 		
 		// Check name
 		if($plugin_name[1] == '')
 		{
-			return array('name' => $path_name . $path_ext, 'error' => lang('error_plugin_no_name'));
+			return array('name' => $path_name . $path_ext, 'description' => trim($description[1]), 'author' => trim($author_name[1]), 'url' => trim($author_uri[1]), 'version' => trim($version[1]), 'error' => lang('error_plugin_no_name'));
 		}
 			
 		if(!alpha($plugin_name[1], 'alpha-spacers'))
 		{
-			return array('name' => $plugin_name[1], 'error' => lang('error_plugin_name'));
+			return array('name' => trim($plugin_name[1]), 'description' => trim($description[1]), 'author' => trim($author_name[1]), 'url' => trim($author_uri[1]), 'version' => trim($version[1]), 'error' => lang('error_plugin_name'));
 		}
 		
-		return array('name' => trim($plugin_name[1]), 'description' => trim($description[1]), 'author' => trim($author_name[1]), 'url' => trim($author_uri[1]), 'plugin' => $path_name, 'file' => $path_name . "." . $path_ext);
+		return array('name' => trim($plugin_name[1]), 'description' => trim($description[1]), 'author' => trim($author_name[1]), 'url' => trim($author_uri[1]), 'version' => trim($version[1]), 'plugin' => $path_name, 'file' => $path_name . "." . $path_ext);
 	}
 }
  
@@ -232,13 +240,14 @@ function add_hook($hook_name, $added_function, $args = null)
 	
 /**
  * Initiate hooks set
- * @global $hooks
+ * @global array $hooks
+ * @global resource
  * @param string $area hooks in this area will be called
  * @return mixed
  */
 function load_hook($area)
 {
-	global $hooks;
+	global $hooks, $database;
 	
 	foreach ($hooks as $hook)
 	{

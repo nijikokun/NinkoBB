@@ -100,6 +100,12 @@ $config = array();
 
 	// Online settings
 	$config['user_online_timeout'] = 30; // last seen for x seconds before not showing as online
+	
+	// Minimum message length
+	$config['interests_min_length'] = 3;
+	
+	// Max length of interests - 9999999 for none srsly.
+	$config['interests_max_length'] = 1000;
 
 /**
  * Topic configuration
