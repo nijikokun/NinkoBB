@@ -4,11 +4,18 @@
  * 
  * Controls inclusions, configuration, and common data. The base file.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.3
+ * @version 1.3RC2
  * @copyright (c) 2010 ANIGAIKU
  * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @package ninko
  */
+ 
+/**
+ * Setup a timezone if it isn't supported
+ *
+ * You can find more timezones here: http://nl3.php.net/manual/en/timezones.php
+ */
+//date_default_timezone_set('UTC');
  
 /**
  * Are we inside of ninko?

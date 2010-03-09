@@ -4,7 +4,7 @@
  * 
  * Includes functions commonly used througout the entire script
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.3
+ * @version 1.3RC2
  * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
@@ -1097,7 +1097,7 @@ function parse($text, $bbcode_show = true)
 		$parser->addCode ('image', 'usecontent', 'bbcode_img', array (), 'image', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
 		
 		// Quote & Code
-		$parser->addCode ('quote', 'callback_replace?', 'bbcode_quote', array ('usecontent_param' => 'default'), 'quote', array ('block', 'inline', 'quote'), array ());
+		$parser->addCode ('quote', 'callback_replace', 'bbcode_quote', array ('usecontent_param' => 'default'), 'quote', array ('block', 'inline', 'quote'), array ());
 		$parser->addCode ('code', 'simple_replace', null, array ('start_tag' => '<div class="codebox"><h4>Code:</h4><div class="scrollbox"><pre>', 'end_tag' => '</pre></div></div>'), 'code', array ('block', 'inline', 'quote'), array ('listitem','link'));
 
 		

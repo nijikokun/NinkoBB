@@ -4,7 +4,7 @@
  * 
  * Admin control panel allowing users to manage the forum
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.3
+ * @version 1.3RC2
  * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
@@ -186,7 +186,7 @@ else
 			" * database.php\n",
 			" * \n",
 			" * Controls the database connection values\n",
-			" * @version 1.3\n",
+			" * @version 1.3RC2\n",
 			" * @copyright (c) 2010 ANIGAIKU\n",
 			" * @package ninko\n",
 			" */\n\n",
@@ -362,7 +362,6 @@ else
 		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('slashes', '');";
 		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('date_format', 'F jS, Y, g:i a');";
 		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('timechange', '-5');";
-		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('version', '1.2');";
 		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('bbcode', '1');";
 		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('bbcode_url', '1');";
 		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('bbcode_image', '1');";
@@ -370,6 +369,10 @@ else
 		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('language', 'en');";
 		$db_schema['config'][] = "INSERT INTO `config` (`key` ,`value`) VALUES('interests_min_length', '3');";
 		$db_schema['config'][] = "INSERT INTO `config` (`key` ,`value`) VALUES('interests_max_length', '1000');";
+		
+		// Current Version
+		$db_schema['config'][] = "INSERT INTO `config` (`key`, `value`) VALUES('version', '1.3');";
+		
 		$db_schema['categories'][] = "INSERT INTO `categories` (`name`,`order`,`aot`) VALUES ('News', 0, 1);";
 		$db_schema['categories'][] = "INSERT INTO `categories` (`name`,`order`) VALUES ('General', 1);";
 		$db_schema['categories'][] = "INSERT INTO `categories` (`name`,`order`) VALUES ('Other', 2);";

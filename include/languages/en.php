@@ -4,7 +4,7 @@
  * 
  * English / English Translation of Ninko
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.3
+ * @version 1.3RC2
  * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
