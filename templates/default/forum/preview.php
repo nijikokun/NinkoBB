@@ -1,56 +1,53 @@
 <?php if(!$reply){ ?>
-<table width="50%" border="0" cellspacing="2" cellpadding="5" class="subject">
-	<tr>
-		<td colspan="2">
-			<?php echo stripslashes(htmlentities($_POST['subject'])); ?> 
-			<span class="info">(0 <?php echo lang('posts_c'); ?>)</span>
-		</td>
-	</tr>
-</table>
+<?php 
+load_hook('message_subject_before'); 
+?>
+	<h1 id="subject" class="title">
+		<?php echo stripslashes(htmlentities($_POST['subject'])); ?> 
+		<span class="info">(0 <?php echo lang('posts_c'); ?>)</span>
+<?php 
+load_hook('message_subject_inside'); 
+?>
+	</h1>
+<?php 
+load_hook('message_subject_after'); 
+?>
 <?php } ?>
-<table width="50%" border="0" cellspacing="2" cellpadding="5" align="center" class="post" id="p-<?php echo $post['id']; ?>">
-    <tr>
-        <td valign="top" width="70%">
-            <dl>
-<?php if(!$user_data['banned'] && !$user_data['admin'] && !$user_data['moderator']){ ?>
-                <img src="<?php echo get_avatar($user_data['id']); ?>" class="avatar" alt="pic" />
-                <dt>
-                    <?php echo $user_data['styled_name']; ?> 
-					<span class="date"><?php echo date($config['date_format'], ($post['time'] + $config['zone'])); ?></span>
-                </dt>
-<?php } else if($user_data['banned']) { ?>
-                <dt>
-                    <span class="banned"><?php echo $user_data['styled_name']; ?></span> 
-					<span class="date"><?php echo date($config['date_format'], ($post['time'] + $config['zone'])); ?></span>
-                </dt>
-                <dd>Banned</dd>
-<?php } else if($user_data['moderator']) { ?>
-                <img src="<?php echo get_avatar($user_data['id']); ?>" class="avatar" alt="pic" />
-                <dt>
-                    <span class="moderator"><?php echo $user_data['styled_name']; ?></span>
-					<span class="date"><?php echo date($config['date_format'], ($post['time'] + $config['zone'])); ?></span>
-                </dt>
-                <dd>Moderator</dd>
-<?php } else { ?>
-                <img src="<?php echo get_avatar($user_data['id']); ?>" class="avatar" alt="pic" />
-                <dt>
-                    <span class="admin"><?php echo $user_data['styled_name']; ?></span>
-					<span class="date"><?php echo date($config['date_format'], ($post['time'] + $config['zone'])); ?></span>
-                </dt>
-                <dd>Administrator</dd>
-<?php } ?>
-                <dd><?php echo forum_count(false, $user_data['id']); ?> posts</dd>
-                <dd><?php echo lang('joined'); ?> <?php echo date($config['date_format'], $user_data['join_date']); ?></dd>
-            </dl>
-        </td>
-		<td align="right" valign="top"></td>
-	</tr>
-	<tr>
-		<td colspan="2">
-            <div id="pdata-<?php echo $post['id']; ?>" class="message">
-				<?php echo parse($_POST['content']); ?>
-            </div>
-		</td>
-	</tr>
-    </tr>
-</table>
+	<div class="userinfo" id="p-000">
+		<div class="right">
+			<span title="<?php echo date($config['date_format'], (time() + $config['zone'])); ?>">
+				<?php echo ago((time() + $config['zone'])); ?> ago
+			</span> 
+			#000
+			<br />
+<?php 
+load_hook('message_user_right'); 
+?>
+		</div>
+		
+		<img src="<?php echo get_avatar($user_data['id']); ?>" class="avatar" alt="pic" />
+		<?php echo $user_data['styled_name']; ?><br />
+<?php 
+if(is_loaded('titles')){ 
+?>
+		<?php echo get_title($user_data); ?> - 
+<?php 
+} 
+?>
+		<?php echo forum_count(false, $user_data['id'], 'user'); ?> posts
+		
+<?php 
+load_hook('message_user_info_after'); 
+?>
+		<div class="clear"></div>
+	</div>
+	
+	<div id="post">
+<?php 
+load_hook('message_before'); 
+?>
+		<?php echo parse($_POST['content']); ?>
+<?php 
+load_hook('message_after'); 
+?>
+	</div>

@@ -15,7 +15,7 @@
 			<a href="<?php echo $config['url_path']; ?>/message.php?reply=0"><?php echo lang('start_new_topic'); ?></a> | 
 <?php } ?>
 			<?php load_hook('footer_right'); ?>
-			Powered by <a href="http://ninkobb.com/">Ninko</a> v. <?php echo $config['version']; ?> t. Ninko
+			Powered by <a href="http://ninkobb.com/">NinkoBB</a> v. <?php echo $config['version']; ?> t. Ninko
 		</div>
 
 <?php
