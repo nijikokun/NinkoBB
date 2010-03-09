@@ -4,11 +4,85 @@
  * 
  * Includes functions commonly used througout the entire script
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @subpackage functions
  */
+ 
+function category($id = false)
+{
+	global $database;
+	
+	if($id)
+	{
+		if(!alpha($id, 'numeric'))
+		{
+			return false;
+		}
+		
+		$sql = "SELECT * FROM `categories` WHERE `id`='{$id}'";
+		
+		// Return Data
+		$return = $database->query( $sql );
+			
+		// Exists?
+		if($database->num( $return ) > 0)
+		{
+			$category = $database->fetch( $return );
+			
+			// fix name just incase
+			$category['name'] = htmlspecialchars($category['name'], ENT_QUOTES, 'UTF-8', FALSE);
+			
+			return $category;
+		}
+		else
+		{
+			// Guess not~
+			return false;
+		}
+	}
+	
+	$sql = "SELECT * FROM `categories` ORDER BY `order`";
+	
+	// Return Data
+	$return = $database->query( $sql );
+		
+	// Exists?
+	if($database->num( $return ) > 0)
+	{
+		// Finally return Results
+		while($category = $database->fetch( $return ))
+		{
+			$categories[] = $category;
+		}
+			
+		return $categories;
+	}
+	else
+	{
+		// Guess not~
+		return false;
+	}
+}
+
+function show_categories()
+{
+	$categories = category();
+	
+	$show = 0;
+	
+	foreach($categories as $category)
+	{
+		if(!$category['expanded'])
+		{ 
+			$show++; 
+		} 
+	}
+	
+	return $show;
+}
 
 /**
  * Fetches forum data based on input
@@ -22,21 +96,26 @@
  * @param integer $limit data to be scanned for links and replaced
  * @return array|boolean
  */
-function fetch($forum = false, $sticky = false, $topic = false, $order_by = 'updated', $order = 'DESC', $current = 0, $limit = 15)
+function fetch($category = false, $sticky = false, $topic = false, $order_by = 'updated', $order = 'DESC', $current = 0, $limit = 15)
 {
 	global $database;
 	
 	// Fetch topics
-	if(is_numeric($forum))
+	if(is_numeric($category))
 	{
+		if($category)
+		{
+			$forum = "`category` = '{$category}' AND ";
+		}
+		
 		if($sticky)
 		{
-			$query = "SELECT * FROM `forum` WHERE `reply` = 0 AND `sticky` = 1 ORDER BY `time` {$order} LIMIT {$current},{$limit}";
+			$query = "SELECT * FROM `forum` WHERE {$forum}(`reply` = 0 AND `sticky` = 1) ORDER BY `time` {$order} LIMIT {$current},{$limit}";
 		}
 		else
 		{
 			// Query
-			$query = "SELECT * FROM `forum` WHERE `reply` = 0 AND `sticky` = 0 ORDER BY `{$order_by}` {$order} LIMIT {$current},{$limit}";
+			$query = "SELECT * FROM `forum` WHERE {$forum}(`reply` = 0 AND `sticky` = 0) ORDER BY `{$order_by}` {$order} LIMIT {$current},{$limit}";
 		}
 
 		// Return Data
@@ -87,6 +166,415 @@ function fetch($forum = false, $sticky = false, $topic = false, $order_by = 'upd
 }
 
 /**
+ * Allows creation of topics, stuck or closed, and posts
+ * @global array
+ * @global array
+ * @global resource
+ * @param string $topic post subject
+ * @param string $content post content
+ * @param integer $reply id of topic we are replying to
+ * @param boolean $sticky are we sticking it to the top?
+ * @param boolean $closed are we closing it?
+ * @return string|int
+ */
+function post($category, $topic, $content, $reply = false, $sticky = false, $closed = false)
+{
+	global $config, $user_data, $database;
+	
+	// The time. milliseconds / seconds may change.
+	$time = time();
+	
+	// Its new right now.
+	$new = true;
+	
+	// Pre-Parse
+	$topic = strip_repeat($topic);
+	
+	if($_SESSION['logged_in'])
+	{
+		// If we aren't replying don't set up a category.
+		if(!$reply)
+		{
+			// Check validity of category as numeric
+			if(!alpha( $category, 'numeric'))
+			{
+				return lang('error_invalid_category');
+			}
+			
+			// Check to see if category exists
+			$category = category($category);
+			
+			if(!$category)
+			{
+				return lang('error_invalid_category');
+			}
+			
+			// Check category settings
+			if($category['aop'] && $reply)
+			{
+				if(!$user_data['admin'] || !$user_data['moderator'])
+				{
+					return lang('error_invalid_category');
+				}
+			}
+			
+			if($category['aot'] && !$reply)
+			{
+				if($user_data['id'] != $category['aot'])
+				{
+					return lang('error_invalid_category');
+				}
+			}
+		}
+		
+		// Topic alpha check. Don't know if I should keep this.
+		if(!alpha( $topic, 'alpha-extra' ))
+		{
+			return lang_parse('error_invalid_chars', array(lang('subject')));
+		}
+		
+		// String length
+		if(is_string(length($topic, $config['subject_minimum_length'], $config['subject_max_length'])))
+		{
+			return lang_parse('error_subject_length', array($config['subject_max_length'], $config['subject_minimum_length']));
+		}
+		
+		// Do we have content to go on?
+		if($content != "")
+		{
+			if(!is_string(length($content, $config['message_minimum_length'], $config['message_max_length'])))
+			{
+				// Are we replying or is it new?
+				if($reply)
+				{
+					if(alpha($reply, 'numeric'))
+					{
+						if(topic($reply, 'id'))
+						{
+							$new = false;
+							
+							// topic data
+							$topic_data = topic($reply, '*');
+							
+							// is it closed?
+							if($topic_data['closed'] && (!$user_data['admin'] || !$user_data['moderator']))
+							{
+								return lang('error_topic_closed');
+							}
+							
+							// Setup reply category
+							$category = category($topic_data['category']);
+						}
+						else
+						{
+							return lang('error_topic_missing');
+						}
+					}
+					else
+					{
+						return lang_parse('error_invalid_given', array(lang('topic') . " " . lang('id')));
+					}
+				}
+				
+				// Sticky
+				$sticky = ($sticky) ? '1' : '0';
+				
+				// Closed
+				$closed = ($closed) ? '1' : '0';
+				
+				// Time Lapse
+				if(!$user_data['admin'])
+				{
+					// Get the time we need to check against
+					if(!$new)
+					{
+						$time_between = time() - $config['post_reply_time_limit'];
+					}
+					else
+					{
+						$time_between = time() - $config['post_topic_time_limit'];
+					}
+					
+					
+					// Last post by this user?
+					$query = "SELECT `time` FROM `forum` WHERE `starter_id` = '{$user_data['id']}' AND `time` > {$time_between}";
+					
+					// Fetch users last post
+					$result = $database->query( $query );
+					
+					// is there a result?
+					if($database->num($result) > 0)
+					{
+						return lang('error_flood_detection');
+					}
+				}
+				
+				// So we don't have leftovers.
+				unset($query, $result);
+				
+				
+				// Guess we can go ahead and add you~
+				$query = "INSERT INTO `forum` (`category`,`subject`,`message`,`reply`,`starter_id`,`host`,`time`,`updated`,`sticky`,`closed`) VALUES (%d,'%s','%s',%d,%d,'%s','%s','%s','%s','%s')";
+				$query = sprintf(
+					$query,
+					$category['id'],
+					$database->escape($topic),
+					$database->escape($content),
+					(($new) ? 0 : $reply),
+					$user_data['id'],
+					$database->escape(gethostname()),
+					$time,
+					$time,
+					$sticky,
+					$closed
+				);
+				
+				// Insert into mysql and retrieve id.
+				$result = $database->query($query);
+				
+				if($result)
+				{
+					// the id from the previous query
+					$id = $database->insert_id();
+					
+					// users new post count
+					$new_post_count = $user_data['posts']+1;
+					
+					// update user post count
+					update_user($user_data['id'], false, 'posts', $new_post_count);
+					
+					// Start sending back information
+					if($new)
+					{
+						return $id;
+					}
+					else
+					{
+						// How many replies?
+						$replies = intval(forum_count(false, $reply, false));
+						
+						// Lets update it
+						$replies = $replies+1;
+						
+						// Woooo~ Last id for redirecting~
+						if($config['show_first_post'])
+						{
+							$page_numbers = ((($replies-1) / $config['messages_per_topic']) - 1);
+						}
+						else
+						{
+							$page_numbers = (($replies / $config['messages_per_topic']) - 1);
+						}
+						
+						$n = ceil($page_numbers);
+						
+						// A little fixing
+						if ($n == -1)
+						{
+							$n = 0;
+						}
+						else
+						{
+							$n = abs($n);
+						}
+						
+						// Update
+						$query = "UPDATE `forum` SET `updated`='{$time}', `replies`='{$replies}' WHERE id = '{$reply}'";
+						
+						// Update
+						$result = $database->query($query);
+						
+						// Return last page number and id for redirect.
+						return array('page' => $n, 'id' => $id);
+					}
+				}
+				else
+				{
+					return lang('error_unknown');
+				}
+				
+			}
+			else
+			{
+				return lang_parse('error_message_length', array($config['message_max_length'], $config['message_minimum_length']));
+			}
+		}
+		else
+		{
+			return lang_parse('error_no_given', array(lang('message')));
+		}
+	}
+	else
+	{
+		return lang('error_not_logged');
+	}
+}
+	
+/**
+ * Allows updating of topics, stuck or closed, and posts
+ * @global array
+ * @global array
+ * @global resource
+ * @param integer $id post we are editing
+ * @param string $topic post subject
+ * @param string $content post content
+ * @param integer $reply id of topic we are replying to
+ * @param boolean $sticky are we sticking it to the top?
+ * @param boolean $closed are we closing it?
+ * @return string|int
+ */
+function update($id, $category, $topic, $content, $sticky = false, $closed = false)
+{
+	global $config, $user_data, $database;
+	
+	// The time. milliseconds / seconds may change.
+	$time = time();
+	
+	// Is the id numeric?
+	if(!alpha($id, 'numeric'))
+	{
+		return lang_parse('error_given_not_numeric', array(lang('post') . " " . lang('id')));
+	}
+	
+	// Grab the data for the update.
+	$post_data = topic($id);
+	
+	// Check to see if the post or topic was found.
+	if(!$post_data)
+	{
+		return lang('error_post_missing');
+	}
+	
+	// Pre-Parse
+	$topic = strip_repeat($topic);
+	
+	// Can't update a replies category!
+	if($post_data['reply'])
+	{
+		$category = $post_data['category'];
+	}
+	
+	// Check validity of category as numeric
+	if(!alpha( $category, 'numeric'))
+	{
+		return lang('error_invalid_category');
+	}
+		
+	// Check to see if category exists
+	$category = category($category);
+		
+	if(!$category)
+	{
+		return lang('error_invalid_category');
+	}
+	
+	// Check category settings against user
+	if(!$user_data['admin'])
+	{
+		if($category['aop'] && $post_data['reply'])
+		{
+			if(!$user_data['admin'] || !$user_data['moderator'])
+			{
+				return lang('error_invalid_category');
+			}
+		}
+		
+		if($category['aot'] && !$post_data['reply'])
+		{
+			if($user_data['id'] != $category['aot'])
+			{
+				return lang('error_invalid_category');
+			}
+		}
+	}
+	
+	// Is the user currently logged in? If not we can't update return error.
+	if($_SESSION['logged_in'])
+	{
+		// Editing a topic not post
+		if($post_data['reply'] == 0)
+		{
+			// Is there a topic?
+			if($topic == "")
+			{
+				return lang_parse('error_no_given', array(lang('username')));
+			}
+		}
+		else
+		{
+			// If there was no topic put re: on it.
+			if($topic == "")
+			{
+				$topic = "re:";
+			}
+		}
+		
+		// Is the subject valid?
+		if(!alpha( $topic, 'alpha-extra' ))
+		{
+			return lang_parse('error_invalid_chars', array(lang('subject')));
+		}
+		
+		// Did they give us any content to work with?
+		if($content != "")
+		{
+			if(!is_string(length($content, $config['message_minimum_length'], $config['message_max_length'])))
+			{
+				// Check to see if the user is an admin and able to sticky / close the topic
+				if($_SESSION['admin'] || $_SESSION['moderator'])
+				{
+					// Sticky
+					$sticky = ($sticky) ? '1' : '0';
+					
+					// Closed
+					$closed = ($closed) ? '1' : '0';
+					
+					// Admin functions
+					update_field($id, 'sticky', $sticky);
+					update_field($id, 'closed', $closed);
+				}
+				
+				// Parsing
+				$topic = $database->escape( $topic );
+				$content = $database->escape( $content );
+				
+				// Update the post already inside of the database with the new data
+				$result = $database->query( "UPDATE `forum` SET `category`='{$category['id']}', `subject`='{$topic}', `message`='{$content}', `updated`='{$time}', `replies`='{$replies}' WHERE id = '{$id}'" ) or die(mysql_error());
+					
+				// Did it work?
+				if($result)
+				{
+					// Update replies with category
+					if($category != $post_data['category'] && !$post_data['reply'])
+					{
+						$database->query( "UPDATE `forum` SET `category`='{$category['id']}' WHERE `reply` = {$id}");
+					}
+					
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+				
+			}
+			else
+			{
+				return lang_parse('error_message_length', array($config['message_max_length'], $config['message_minimum_length']));
+			}
+		}
+		else
+		{
+			return lang_parse('error_no_given', array(lang('message')));
+		}
+	}
+	else
+	{
+		return lang('error_not_logged');
+	}
+}
+
+/**
  * Fetches post data by id and custom select
  * @global resource
  * @param integer $topic id used to retrieve topic / post data
@@ -107,6 +595,40 @@ function topic($topic, $data = '*')
 	if($database->num( $return ) > 0)
 	{
 		return $database->fetch( $return );
+	}
+	else
+	{
+		return false;
+	}
+}
+
+/**
+ * Grabs all categories and puts them into an array
+ * @global resource
+ * @param integer $topic id used to retrieve topic / post data
+ * @param string $data fields to be retrieved from database
+ * @return array|boolean
+ */
+function categories($order = 'ASC')
+{
+	global $database;
+	
+	// Array
+	$category = array();
+	
+	// Query
+	$query = "SELECT * FROM `categories` WHERE `order` = '{$order}' LIMIT 1";
+	
+	// Return Data
+	$return = $database->query( $query );
+
+	// Return the data
+	if($database->num( $return ) > 0)
+	{
+		while($category = $database->fetch( $return ))
+		{
+			$categories[$category['id']] = $category['name'];
+		}
 	}
 	else
 	{
@@ -170,12 +692,18 @@ function last_post($topic, $id = false, $data = '*')
  * @param integer $topic id used to retrieve reply data
  * @return array|boolean
  */
-function get_replies($topic)
+function get_replies($topic, $category = false)
 {
 	global $database;
 	
-	// Query
-	$query = "SELECT replies FROM `forum` WHERE `id` = {$topic}";
+	if($category)
+	{
+	}
+	else
+	{
+		// Query
+		$query = "SELECT replies FROM `forum` WHERE `id` = {$topic}";
+	}
 	
 	// Return Data
 	$return = $database->query( $query );
@@ -196,22 +724,34 @@ function get_replies($topic)
 /**
  * Count replies for the forum or user
  * @global resource
- * @param integer $topic id used to retrieve reply data
- * @param integer $user id used to retrieve reply data for user
- * @param boolean $all count all the replies?
+ * @param integer $id id used to retrieve data for topics users etc
+ * @param boolean $type refers to what are we retrieving
  * @param boolean $exclude_stickies include stickies in our count?
  * @param boolean $posts count posts?
  * @param boolean $today show count from past day only?
  * @return int
  */
-function forum_count($topic, $user = false, $all = false, $exclude_stickies = false, $posts = false, $today = false)
+function forum_count($category, $id, $type, $today = false, $topics = false)
 {
 	global $database;
 	
-	if($all)
+	if($type == "all")
 	{
+		if($category)
+		{
+			if(alpha($category, 'numeric'))
+			{
+				$category = " WHERE `category` = '{$category}'";
+			}
+		}
+		
+		if($topics)
+		{
+			$category .= " AND `reply` = '0'";
+		}
+		
 		// Query
-		$query = "SELECT id FROM `forum`";
+		$query = "SELECT id FROM `forum`{$category}";
 		
 		// Return Data
 		$return = $database->query( $query );
@@ -220,16 +760,24 @@ function forum_count($topic, $user = false, $all = false, $exclude_stickies = fa
 		return $database->num( $return );
 	}
 	
-	if($posts)
+	if($type == "posts")
 	{
+		if($category)
+		{
+			if(alpha($category, 'numeric'))
+			{
+				$category = "`category` = '{$category}' AND ";
+			}
+		}
+		
 		if($today)
 		{
-			$query = "SELECT `id` FROM `forum` WHERE `reply` != '0' AND `time` >= " . strtotime('-1 day');
+			$query = "SELECT `id` FROM `forum` WHERE {$category}(`reply` != '0' AND `time` >= " . strtotime('-1 day') . ")";
 		}
 		else
 		{
 			// Query
-			$query = "SELECT id FROM `forum` WHERE `reply` != '0'";
+			$query = "SELECT id FROM `forum` WHERE {$category}(`reply` != '0')";
 		}
 		
 		// Return Data
@@ -239,403 +787,79 @@ function forum_count($topic, $user = false, $all = false, $exclude_stickies = fa
 		return $database->num( $return );
 	}
 	
-	if($topic === "*")
+	if($type == "user")
 	{
-		if($exclude_stickies)
-		{
-			if($today)
-			{
-				$query = "SELECT `id` FROM `forum` WHERE (`reply` = '0' AND `sticky` = '0') AND `time` >= " . strtotime('-1 day');
-			}
-			else
-			{
-				// Query
-				$query = "SELECT id FROM `forum` WHERE `reply` = '0' AND `sticky` = '0'";
-			}
-		}
-		else
-		{
-			if($today)
-			{
-				$query = "SELECT `id` FROM `forum` WHERE `reply` != '0' AND `time` >= " . strtotime('-1 day');
-			}
-			else
-			{
-				// Query
-				$query = "SELECT id FROM `forum` WHERE `reply` = '0'";
-			}
-		}
-		
-		// Return Data
-		$return = $database->query( $query );
-		
-		// Return the count
-		return $database->num( $return );
-	}
-	else
-	{
-		if($topic)
+		if(is_numeric($id))
 		{
 			// Query
-			$query = "SELECT id FROM `forum` WHERE `reply` = {$topic}";
-			
+			$query = "SELECT id FROM `forum` WHERE `starter_id` = '{$id}'";
+				
 			// Return Data
 			$return = $database->query( $query );
-			
+				
 			// Return the count
 			return $database->num( $return );
 		}
-		else if($user)
+		else
 		{
-			if(is_numeric($user))
+			return intval(0);
+		}
+	}
+	
+	if($id === "*")
+	{
+		if($category)
+		{
+			if(alpha($category, 'numeric'))
 			{
-				// Query
-				$query = "SELECT id FROM `forum` WHERE `starter_id` = '{$user}'";
-				
-				// Return Data
-				$return = $database->query( $query );
-				
-				// Return the count
-				return $database->num( $return );
+				$category = "`category` = '{$category}' AND ";
+			}
+		}
+		
+		if($type == "exclude_stickies")
+		{
+			if($today)
+			{
+				$query = "SELECT `id` FROM `forum` WHERE {$category}(`reply` = '0' AND `sticky` = '0') AND (`time` >= " . strtotime('-1 day') . ")";
 			}
 			else
 			{
-				return intval(0);
+				// Query
+				$query = "SELECT id FROM `forum` WHERE {$category}(`reply` = '0' AND `sticky` = '0')";
 			}
 		}
+		else
+		{
+			if($today)
+			{
+				$query = "SELECT `id` FROM `forum` WHERE {$category}(`reply` != '0' AND `time` >= " . strtotime('-1 day'). ")";
+			}
+			else
+			{
+				// Query
+				$query = "SELECT id FROM `forum` WHERE {$category}(`reply` = '0')";
+			}
+		}
+		
+		// Return Data
+		$return = $database->query( $query );
+		
+		// Return the count
+		return $database->num( $return );
+	}
+	else
+	{
+		// Query
+		$query = "SELECT id FROM `forum` WHERE `reply` = {$id}";
+			
+		// Return Data
+		$return = $database->query( $query );
+			
+		// Return the count
+		return $database->num( $return );
 	}
 }
 
-/**
- * Allows creation of topics, stuck or closed, and posts
- * @global array
- * @global array
- * @global resource
- * @param string $topic post subject
- * @param string $content post content
- * @param integer $reply id of topic we are replying to
- * @param boolean $sticky are we sticking it to the top?
- * @param boolean $closed are we closing it?
- * @return string|int
- */
-function post($topic, $content, $reply = false, $sticky = false, $closed = false)
-{
-	global $config, $user_data, $database;
-	
-	// The time. milliseconds / seconds may change.
-	$time = time();
-	
-	// Its new right now.
-	$new = true;
-	
-	// Pre-Parse
-	$topic = clean_input(strip_repeat($topic));
-	$content = field_clean(stripslashes($content), true);
-	
-	if($_SESSION['logged_in'])
-	{
-		if(!$reply)
-		{
-			if($topic == "")
-			{
-				return lang_parse('error_no_given', array(lang('subject')));
-			}
-		}
-		else
-		{
-			if($topic == "")
-			{
-				$topic = "re:";
-			}
-		}
-		
-		if(!alpha( $topic, 'alpha-extra' ))
-		{
-			return lang_parse('error_invalid_chars', array(lang('subject')));
-		}
-		
-		if(is_string(length($topic, $config['subject_minimum_length'], $config['subject_max_length'])))
-		{
-			return lang_parse('error_subject_length', array($config['subject_max_length'], $config['subject_minimum_length']));
-		}
-		
-		if($content != "")
-		{
-			if(!is_string(length($content, $config['message_minimum_length'], $config['message_max_length'])))
-			{
-				// Are we replying or is it new?
-				if($reply)
-				{
-					if(is_numeric($reply))
-					{
-						if(topic($reply, 'id'))
-						{
-							$new = false;
-							
-							// topic data
-							$topic_data = topic($reply, '*');
-							
-							// is it closed?
-							if($topic_data['closed'] && (!$user_data['admin'] || !$user_data['moderator']))
-							{
-								return lang('error_topic_closed');
-							}
-						}
-						else
-						{
-							return lang('error_topic_missing');
-						}
-					}
-					else
-					{
-						return lang_parse('error_invalid_given', array(lang('topic') . " " . lang('id')));
-					}
-				}
-				
-				// Sticky
-				$sticky = ($sticky) ? '1' : '0';
-				
-				// Closed
-				$closed = ($closed) ? '1' : '0';
-				
-				// Parsing
-				$content = htmlentities( $content );
-				
-				// Time Lapse
-				if(!$user_data['admin'])
-				{
-					if(!$new)
-					{
-						$time_between = time() - $config['post_reply_time_limit'];
-					}
-					else
-					{
-						$time_between = time() - $config['post_topic_time_limit'];
-					}
-					
-					
-					// Last post by this user?
-					$query = "SELECT `time` FROM `forum` WHERE `starter_id` = '{$user_data['id']}' AND `time` > {$time_between}";
-					
-					// Fetch users last post
-					$result = $database->query( $query );
-					
-					// is there a result?
-					if($database->num($result) > 0)
-					{
-						return lang('error_flood_detection');
-					}
-				}
-				
-				// So we don't have leftovers.
-				unset($query, $result);
-				
-				
-				// Guess we can go ahead and add you~
-				$query = "INSERT INTO `forum` (`subject`,`message`,`reply`,`starter_id`,`host`,`time`,`updated`,`sticky`,`closed`) VALUES ('%s','%s',%d,%d,'%s','%s','%s','%s','%s')";
-				$query = sprintf(
-					$query,
-					mysql_clean($topic),
-					mysql_clean($content),
-					(($new) ? 0 : $reply),
-					$user_data['id'],
-					mysql_clean(gethostname()),
-					$time,
-					$time,
-					$sticky,
-					$closed
-				);
-				
-				// Insert into mysql and retrieve id.
-				$result = $database->query($query);
-				
-				if($result)
-				{
-					// the id from the previous query
-					$id = $database->insert_id();
-					
-					// users new post count
-					$new_post_count = $user_data['posts']+1;
-					
-					// update user post count
-					update_user($user_data['id'], false, 'posts', $new_post_count);
-					
-					// Start sending back information
-					if($new)
-					{
-						return $id;
-					}
-					else
-					{
-						// How many replies?
-						$replies = intval(forum_count($reply));
-						
-						// Lets update it
-						$replies = $replies+1;
-						
-						// Woooo~ Last id for redirecting~
-						$page_numbers = (($replies / $config['messages_per_topic']) - 1);
-						$n = ceil($page_numbers);
-						
-						if ($n == -1)
-						{
-							$n = 0;
-						}
-						else
-						{
-							$n = abs($n);
-						}
-						
-						// Update
-						$query = "UPDATE `forum` SET `updated`='{$time}', `replies`='{$replies}' WHERE id = '{$reply}'";
-						
-						// Update
-						$result = $database->query($query);
-						
-						// Return last page number and id for redirect.
-						return array('page' => $n, 'id' => $id);
-					}
-				}
-				else
-				{
-					return lang('error_unknown');
-				}
-				
-			}
-			else
-			{
-				return lang_parse('error_message_length', array($config['message_max_length'], $config['message_minimum_length']));
-			}
-		}
-		else
-		{
-			return lang_parse('error_no_given', array(lang('message')));
-		}
-	}
-	else
-	{
-		return lang('error_not_logged');
-	}
-}
-	
-/**
- * Allows updating of topics, stuck or closed, and posts
- * @global array
- * @global array
- * @global resource
- * @param integer $id post we are editing
- * @param string $topic post subject
- * @param string $content post content
- * @param integer $reply id of topic we are replying to
- * @param boolean $sticky are we sticking it to the top?
- * @param boolean $closed are we closing it?
- * @return string|int
- */
-function update($id, $topic, $content, $sticky = false, $closed = false)
-{
-	global $config, $user_data, $database;
-	
-	// The time. milliseconds / seconds may change.
-	$time = time();
-	
-	// Is the id numeric?
-	if(!alpha($id, 'numeric'))
-	{
-		return lang_parse('error_given_not_numeric', array(lang('post') . " " . lang('id')));
-	}
-	
-	// Grab the data for the update.
-	$post_data = topic($id);
-	
-	// Check to see if the post or topic was found.
-	if(!$post_data)
-	{
-		return lang('error_post_missing');
-	}
-	
-	// Pre-Parse
-	$topic = clean_input(strip_repeat($topic));
-	$content = htmlentities($content);
-	$content = clean_input(stripslashes($content));
-	
-	// Is the user currently logged in? If not we can't update return error.
-	if($_SESSION['logged_in'])
-	{
-		// Editing a topic not post
-		if($post_data['reply'] == 0)
-		{
-			if($topic == "")
-			{
-				return lang_parse('error_no_given', array(lang('username')));
-			}
-		}
-		else
-		{
-			if($topic == "")
-			{
-				$topic = "re:";
-			}
-		}
-		
-		// Is the subject valid?
-		if(!alpha( $topic, 'alpha-extra' ))
-		{
-			return lang_parse('error_invalid_chars', array(lang('subject')));
-		}
-		
-		
-		// Did they give us any content to work with?
-		if($content != "")
-		{
-			if(!is_string(length($content, $config['message_minimum_length'], $config['message_max_length'])))
-			{
-				// Check to see if the user is an admin and able to sticky / close the topic
-				if($_SESSION['admin'] || $_SESSION['moderator'])
-				{
-					// Sticky
-					$sticky = ($sticky) ? '1' : '0';
-					
-					// Closed
-					$closed = ($closed) ? '1' : '0';
-					
-					// Admin functions
-					update_field($id, 'sticky', $sticky);
-					update_field($id, 'closed', $closed);
-				}
-				
-				// Parsing
-				$content = htmlspecialchars( $content );
-				
-				// Update the post already inside of the database with the new data
-				$result = $database->query( "UPDATE `forum` SET `subject`='{$topic}', `message`='{$content}', `updated`='{$time}', `replies`='{$replies}' WHERE id = '{$id}'" ) or die(mysql_error());
-					
-				// Did it work?
-				if($result)
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-				
-			}
-			else
-			{
-				return lang_parse('error_message_length', array($config['message_max_length'], $config['message_minimum_length']));
-			}
-		}
-		else
-		{
-			return lang_parse('error_no_given', array(lang('message')));
-		}
-	}
-	else
-	{
-		return lang('error_not_logged');
-	}
-}
-	
 /**
  * Update specific field rather than whole post
  * @param integer $id post we are editing
@@ -645,6 +869,8 @@ function update($id, $topic, $content, $sticky = false, $closed = false)
  */
 	function update_field($id, $field, $value)
 	{
+		global $database;
+		
 		// Error codes
 		//	905		- Invalid id
 		
@@ -679,122 +905,233 @@ function update($id, $topic, $content, $sticky = false, $closed = false)
  * @param boolean $bbcode show bbcode or not?
  * @return mixed
  */
-function parse($text, $bbcode = true)
+function parse($text, $bbcode_show = true)
 {
-	global $config;
+	global $config, $parser;
 	
 	// Return base text!
-	if(!$bbcode)
+	if(!$bbcode_show)
 	{
-		return html_entity_decode(stripslashes(str_replace('\r\n', '<br />', $text)));
+		return htmlspecialchars($text, ENT_QUOTES, 'UTF-8', FALSE);
 	}
 	
 	// Do they allow bbcode or does this post allow bbcode?
-	if($config['bbcode'] && $bbcode)
+	if($config['bbcode'] && $bbcode_show)
 	{
-		$start = array( 
-			'/\[url=("|\'|)(.*?)\\1\]/i',
-			'/\[url\]/i',
-			'/\[\/url\]/i',
-			'/\[img\]\s*(.*?)\s*\[\/img\]/is',
-			'/\[colou?r=("|\'|)(.*?)\\1\](.*?)\[\/colou?r\]/is',
-			'/\[quote=(&quot;|"|\'|)(.*?)\\1\]\s */i',
-			'/\[qoute=(&quot;|"|\'|)(.*?)\\1\]\s */i',
-			'/\[quote\]\s */i',
-			'/\[qoute\]\s */i',
-			'/\s*\[\/quote\]\s */i',
-			'/\s*\[\/qoute\]/i',
-			'/\[code\][\r\n]*(.*?)\[\/code\]/is',
-		);
+		// Convert special characters before bbcode :3
+		$text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8', FALSE);
 		
-		$end = array(	
-			'[url=$2]',
-			'[url]',
-			'[/url]',
-			'[img]$1[/img]',
-			'[color=$2]$3[/color]',
-			'[quote=$1$2$1]',
-			'[quote=$1$2$1]',
-			'[quote]',
-			'[quote]',
-			'[/quote]'."\n",
-			'[/quote]'."\n",
-			'[code]$1[/code]'."\n",
-		);
+		// Convert newlines
+		$text = preg_replace ("/\015\012|\015|\012/", "\n", $text);
 		
-		// Replace the non needed characters.
-		$text = preg_replace($start, $end, $text);
-		
-		// Html close tags edited to work for bbcode
-		$text = closetags($text);
-		
-		// Lets make sure the code doesn't get obscured
-		if (strpos($text, '[code]') !== false && strpos($text, '[/code]') !== false)
+		// Strip everything but newlines
+		if(!function_exists('bbcode_stripcontents'))
 		{
-			list($inside, $outside) = split_text($text, '[code]', '[/code]');
-			$outside = array_map('ltrim', $outside);
-			$text = implode('<">', $outside);
-		}
-		
-		// Quoting
-		if (strpos($text, 'quote') !== false)
-		{
-			$text = str_replace('[quote]', '<blockquote><div class="quotebox"><div class="text">', $text);
-			$text = preg_replace('/\[quote=(&quot;|"|\'|)(.*)\\1\]/seU', '"<blockquote><div class=\"quotebox\"><h4>".str_replace(array(\'[\', \'\\"\'), array(\'&#91;\', \'"\'), \'$2\')." wrote:</h4><div class=\"text\">"', $text);
-			$text = preg_replace('/\[\/quote\](\s *)?/i', '</div></div></blockquote>', $text);
-		}
-		
-		// Basic BBCodes
-		$pattern = array('/\[b\](.*?)\[\/b\]/s', '/\[i\](.*?)\[\/i\]/s', '/\[u\](.*?)\[\/u\]/s');
-		$replace = array('<strong>$1</strong>', '<em>$1</em>', '<u>$1</u>');
-		
-		// This thing takes a while! :)
-		$text = preg_replace($pattern, $replace, $text);
-		
-		// Do we allow urls?
-		if($config['bbcode_url'])
-		{
-			$pattern = array('/\[url\]([^\[]*?)\[\/url\]/e', '/\[url=([^\[]*?)\](.*?)\[\/url\]/e');
-			$replace = array('url_tag(\'$1\')','url_tag(\'$1\', \'$2\')');
-			
-			$text = preg_replace($pattern, $replace, $text);
-		}
-		
-		// Color
-		$text = preg_replace("/\[color=([a-zA-Z]*|\#?[0-9a-fA-F]{6})]/s", '<span style="color: \\1">', $text);
-		$text = preg_replace("/\[\/color\]/s", '</span>', $text);
-		
-		// Do we allow images?
-		if($config['bbcode_image'])
-		{
-			$text = preg_replace('/\[img\]((ht|f)tps?:\/\/)([^\s<\"]*?)\.(jpg|jpeg|png|gif)\[\/img\]/s', '<img class="p-image" src="$1$3.$4" />', $text);
-		}
-		
-		// Parse with newlines and such before the code
-		$text = clickable(stripslashes(nl2br(str_replace(array('\r\n', '\r', '\n'), "<br />", $text))));
-		
-		// If we split up the message before we have to concatenate it together again (code tags)
-		if (isset($inside))
-		{
-			$outside = explode('<">', $text);
-			$text = '';
-			
-			$num_tokens = count($outside);
-			
-			for ($i = 0; $i < $num_tokens; ++$i)
+			function bbcode_stripcontents ($text)
 			{
-				$text .= $outside[$i];
-				
-				if (isset($inside[$i]))
+				return preg_replace ("/[^\n]/", '', $text);
+			}
+		}
+		
+		// Convert codes related specifically to code bbcode
+		if(!function_exists('bbcode_code_convert'))
+		{
+			function bbcode_code_convert ($text)
+			{
+				return preg_replace ("/(\n|\r\n)/", '%nl', $text);
+			}
+		}
+		
+		// Convert codes related specifically to code bbcode
+		if(!function_exists('bbcode_code_revert'))
+		{
+			function bbcode_code_revert ($text)
+			{
+				return preg_replace ("/\%nl/", chr(13) . chr(10), $text);
+			}
+		}
+		
+		// Quoting :D
+		if(!function_exists('bbcode_quote'))
+		{
+			function bbcode_quote($action, $attributes, $content, $params, $node_object)
+			{
+				if($action == 'validate')
 				{
-					$text .= '<div class="codebox"><h4>Code:</h4><div class="scrollbox"><pre>'.$inside[$i].'</pre></div></div>';
+					return true;
+				}
+				
+				if (!isset ($attributes['default']))
+				{
+					$name = $content;
+					
+					if($action == 'output')
+					{
+						$text = $content;
+					}
+						
+					return '<blockquote><div class="userquotebox"><h4>Quote:</h4><div class="text">'.$text.'</div></div></blockquote>';
+				} 
+				else 
+				{
+					$name = $attributes['default'];
+					
+					if($action == 'output')
+					{
+						$text = $content;
+					}
+						
+					return '<blockquote><div class="userquotebox"><h4>'.$name.' wrote:</h4><div class="text">'.$text.'</div></div></blockquote>';
 				}
 			}
 		}
+		
+		if(!function_exists('bbcode_color'))
+		{
+			function bbcode_color($action, $attributes, $content, $params, $node_object)
+			{
+				if ($action == 'validate')
+				{
+					if($attributes['default'] == "")
+					{
+						return false;
+					}
+					
+					if(!preg_match('/([a-zA-Z]*|\#?[0-9a-fA-F]{6})/i', $attributes['default']))
+					{
+						return false;
+					}
+					
+					return true;
+				}
+
+				$color = $attributes['default'];
+				$text = $content;
+					
+				return '<span style="color: '.$color.'">'.$text.'</span>';
+			}
+		}
+		
+		// Url parsing
+		if(!function_exists('bbcode_url'))
+		{
+			function bbcode_url($action, $attributes, $content, $params, $node_object)
+			{
+				if (!isset ($attributes['default']))
+				{
+					$url = $content;
+					$text = $content;
+				} 
+				else 
+				{
+					$url = $attributes['default'];
+					$text = $content;
+				}
+				
+				if ($action == 'validate')
+				{
+					if(substr ($url, 0, 5) == 'data:' || substr ($url, 0, 5) == 'file:' || substr ($url, 0, 11) == 'javascript:' || substr ($url, 0, 4) == 'jar:') 
+					{
+						return false;
+					}
+					
+					if(!is_url($url))
+					{
+						return false;
+					}
+					
+					return true;
+				}
+				
+				return '<a href="'.$url.'" rel="no-follow">'.$text.'</a>';
+			}
+		}
+		
+		// Url parsing
+		if(!function_exists('bbcode_img'))
+		{
+			function bbcode_img ($action, $attributes, $content, $params, $node_object) 
+			{
+				if ($action == 'validate')
+				{
+					if(substr ($content, 0, 5) == 'data:' || substr ($content, 0, 5) == 'file:' || substr ($content, 0, 11) == 'javascript:' || substr ($content, 0, 4) == 'jar:') 
+					{
+						return false;
+					}
+					
+					if(!preg_match('/((ht|f)tps?:\/\/)([^\s<\"]*?)\.(jpg|jpeg|png|gif)/i', $content))
+					{
+						return false;
+					}
+					
+					return true;
+				}
+				
+				return '<img src="'.$content.'" rel="no-follow">';
+			}
+		}
+		
+		// Parsers
+		$parser->addParser ('list', 'bbcode_stripcontents');
+		$parser->addParser ('code', 'bbcode_code_convert');
+		
+		// Codes
+		$parser->addCode ('b', 'simple_replace', null, array ('start_tag' => '<b>', 'end_tag' => '</b>'), 'inline', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
+		$parser->addCode ('i', 'simple_replace', null, array ('start_tag' => '<i>', 'end_tag' => '</i>'), 'inline', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
+		$parser->addCode ('u', 'simple_replace', null, array ('start_tag' => '<u>', 'end_tag' => '</u>'), 'inline', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
+		$parser->addCode ('s', 'simple_replace', null, array ('start_tag' => '<s>', 'end_tag' => '</s>'), 'inline', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
+		
+		// Text related
+		$parser->addCode ('color', 'usecontent?', 'bbcode_color', array ('usecontent_param' => 'default'), 'inline', array ('listitem', 'block', 'inline', 'link', 'quote'), array ('link'));
+		
+		// Links
+		$parser->addCode ('url', 'usecontent?', 'bbcode_url', array ('usecontent_param' => 'default'), 'link', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
+		$parser->addCode ('link', 'usecontent', 'bbcode_url', array (), 'link', array ('listitem', 'block', 'inline', 'quote'), array ());
+		
+		// List
+		$parser->addCode ('list', 'simple_replace', null, array ('start_tag' => '<ul>', 'end_tag' => '</ul>'), 'list', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
+		$parser->addCode ('*', 'simple_replace', null, array ('start_tag' => '<li>', 'end_tag' => '</li>'), 'listitem', array ('list'), array ());
+		
+		// Images
+		$parser->addCode ('img', 'usecontent', 'bbcode_img', array (), 'image', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
+		$parser->addCode ('image', 'usecontent', 'bbcode_img', array (), 'image', array ('listitem', 'block', 'inline', 'link', 'quote'), array ());
+		
+		// Quote & Code
+		$parser->addCode ('quote', 'callback_replace?', 'bbcode_quote', array ('usecontent_param' => 'default'), 'quote', array ('block', 'inline', 'quote'), array ());
+		$parser->addCode ('code', 'simple_replace', null, array ('start_tag' => '<div class="codebox"><h4>Code:</h4><div class="scrollbox"><pre>', 'end_tag' => '</pre></div></div>'), 'code', array ('block', 'inline', 'quote'), array ('listitem','link'));
+
+		
+		// Occurrences
+		$parser->setOccurrenceType ('img', 'image');
+		$parser->setOccurrenceType ('image', 'image');
+		$parser->setOccurrenceType ('url', 'link');
+		$parser->setMaxOccurrences ('image', 4);
+		$parser->setMaxOccurrences ('link', 20);
+		
+		// Flags
+		$parser->setCodeFlag('*', 'closetag', BBCODE_CLOSETAG_OPTIONAL);
+		$parser->setCodeFlag('*', 'paragraphs', false);
+		$parser->setCodeFlag('list', 'paragraph_type', BBCODE_PARAGRAPH_BLOCK_ELEMENT);
+		$parser->setCodeFlag('list', 'opentag.after.newline', BBCODE_NEWLINE_DROP);
+		$parser->setCodeFlag('list', 'closetag.after.newline', BBCODE_NEWLINE_DROP);
+		$parser->setCodeFlag('quote', 'opentag.after.newline', BBCODE_NEWLINE_DROP);
+		$parser->setCodeFlag('quote', 'closetag.after.newline', BBCODE_NEWLINE_DROP);
+		
+		// Parse the text
+		$text = $parser->parse($text);
+		
+		// Just once
+		$text = nl2br($text);
+		
+		// Clickable
+		//$text = clickable($text);
+		
+		// Revert the code changes
+		$text = bbcode_code_revert($text);
 	}
 	
 	// Return a fully parsed post / other
-	return html_entity_decode($text);
+	return $text;
 }
 		
 /**

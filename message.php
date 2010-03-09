@@ -4,7 +4,8 @@
  * 
  * Creation of topics, and posts begins right here in this file.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  */
@@ -48,7 +49,7 @@ if(isset($_POST['post']))
 		/**
 		 * Now for the fun part!
 		 */
-		$data = post($_POST['subject'], $_POST['content'], $_POST['reply'], $sticky, $closed);
+		$data = post($_POST['category'], $_POST['subject'], $_POST['content'], $_POST['reply'], $sticky, $closed);
 		
 		// After the post is done dunno what for but w/e
 		load_hook('after_post_function');
@@ -102,7 +103,7 @@ else if(isset($_POST['edit']))
 		/**
 		 * Now for the fun part!
 		 */
-		$data = update($_GET['edit'], $_POST['subject'], $_POST['content'], $sticky, $closed);
+		$data = update($_GET['edit'], $_POST['category'], $_POST['subject'], $_POST['content'], $sticky, $closed);
 					
 		// Errors
 		if(is_string($data) && !is_numeric($data))
@@ -172,7 +173,7 @@ if(isset($_GET['reply']))
 			{
 				$reply = 0;
 				
-				// New topic :/
+				// New topic 
 				$title = lang('posting_new_topic');
 			}
 		}
@@ -180,7 +181,7 @@ if(isset($_GET['reply']))
 		{
 			$reply = 0;
 			
-			// New topic :/
+			// New topic 
 			$title = lang('posting_new_topic');
 		}
 	}
@@ -188,7 +189,7 @@ if(isset($_GET['reply']))
 	{
 		$reply = 0;
 		
-		// New topic :/
+		// New topic 
 		$title = lang('posting_new_topic');
 	}
 }
@@ -212,12 +213,13 @@ else if(isset($_GET['edit']))
 			$content = html_entity_decode(htmlspecialchars_decode(stripslashes($post['message'])));
 			$sticky = $post['sticky'];
 			$closed = $post['closed'];
+			$category = $post['category'];
 		}
 		else
 		{
 			$reply = 0;
 			
-			// New topic :/
+			// New topic
 			$title = lang('posting_new_topic');
 		}
 	}
@@ -225,7 +227,7 @@ else if(isset($_GET['edit']))
 	{
 		$reply = 0;
 		
-		// New topic :/
+		// New topic 
 		$title = lang('posting_new_topic');
 	}
 }
@@ -233,7 +235,7 @@ else
 {
 	$reply = 0;
 	
-	// New topic :/
+	// New topic 
 	$title = lang('posting_new_topic');
 }
 

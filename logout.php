@@ -4,7 +4,8 @@
  * 
  * Signs the user out, deletes cookies and sessions.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  */

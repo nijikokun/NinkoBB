@@ -1,17 +1,17 @@
 		<td valign="top" align="left">
 			<table class="ac" width="100%" cellpadding="5" cellspacing="0">
 				<tr>
-					<td colspan="6" class="title"><?php echo lang('admin_cp'); ?> - Manage Topics / Topics</td>
+					<td colspan="7" class="title"><?php echo lang('admin_cp'); ?> - Manage Topics / Topics</td>
 				</tr>
 <?php if ($error){ ?>
                 <tr>
-                    <td class="error">
+                    <td class="error" colspan="7" >
                         <?php echo $error; ?>
                     </td>
                 </tr>
 <?php } else if($success){ ?>
                 <tr>
-                    <td class="error">
+                    <td class="error" colspan="7" >
                         <?php echo $success; ?>
                     </td>
                 </tr>
@@ -22,31 +22,55 @@
 					<td align="center" class="item key"><?php echo lang('status'); ?></td>
 					<td align="center" class="item key"><?php echo lang('posts_c'); ?></td>
 					<td colspan="2" class="item key"><?php echo lang('actions'); ?></td>
+					<td colspan="2" class="item key"><?php echo lang('category'); ?></td>
 				</tr>
 <?php 
-foreach($topics as $row){ 
-		// reset
-		$status = "";
+foreach($topics as $row)
+{ 
+	// reset
+	$status = ""; $list = "";
 		
-		// Trim subject
-		$subject = character_limiter(trim(stripslashes($row['subject'])), $config['max_length']);
+	// Trim subject
+	$subject = substru(trim(stripslashes($row['subject'])), 0, $config['max_length']) . "&#8230;";
 		
-		// Build topic url
-		$topic_url = "{$config['url_path']}/read.php?id={$row['id']}";
+	// Build topic url
+	$topic_url = "{$config['url_path']}/read.php?id={$row['id']}";
 		
-		// Topic starter data
-		$topic_author = user_data($row['starter_id']);
+	// Topic starter data
+	$topic_author = user_data($row['starter_id']);
 		
-		// Topic status
-		if($row['closed'])
+	// Topic status
+	if($row['closed'])
+	{
+		$status = 'closed, ';
+	}
+		
+	if($row['sticky'])
+	{
+		$status .= 'sticky';
+	}
+
+	$categories = category();
+
+	// Create the delete list
+	foreach($categories as $acat)
+	{ 
+		if($acat['id'] == $row['category']){ continue; }
+		
+		if($page){ $apage = "&page={$page}"; }
+		
+		$list .= "<a href='{$config['url_path']}/admin.php?a=topics&update={$row['id']}&cat={$acat['id']}{$apage}'>{$acat['name']}</a>";
+			
+		if((end($categories) != $acat))
 		{
-			$status = 'closed, ';
+				$list .= ", ";
 		}
-		
-		if($row['sticky'])
-		{
-			$status .= 'sticky';
-		}
+	}
+
+	if(substr($list, -2) == ", ")
+	{
+		$list = substr($list, 0, -2);
+	}
 ?>
                 <tr>
                     <td nowrap="nowrap" width="40%" class="item">
@@ -63,13 +87,16 @@ foreach($topics as $row){
                         <?php echo $status ?>
                     </td>
                     <td nowrap="nowrap" align="center" class="item grey">
-                        <?php echo forum_count($row['id']); ?>
+                        <?php echo forum_count(false, $row['id'], ''); ?>
                     </td>
                     <td nowrap="nowrap" align="center" class="item key">
                         <a href="<?php echo $config['url_path']; ?>/message.php?edit=<?php echo $row['id']; ?>">Edit</a>
                     </td>
                     <td nowrap="nowrap" align="center" class="item key">
                         <a href="<?php echo $config['url_path']; ?>/admin.php?a=topics&delete=<?php echo $row['id']; ?>">Delete</a>
+                    </td>
+                    <td nowrap="nowrap" align="center" class="item key">
+                        <?php echo $list; ?>
                     </td>
                 </tr>
 <?php } ?>

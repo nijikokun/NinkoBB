@@ -4,7 +4,8 @@
  * 
  * Contains the default configurations settings, now inside of mysql.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  */
@@ -32,7 +33,7 @@ $config = array();
 	$config['admin_symbol'] = "!"; // EG: !Nijikokun
 
 	// URL path of forum WITHOUT trailing slash e.g, http://riot.anigaiku.com/board
-	$config['url_path'] = "http://mysite.com/riotpix";
+	$config['url_path'] = "http://localhost/ninkobb/ninkobb/";
 
 	// Path of directory WITHOUT trailing slash e.g, /home/anigaiku/riot/board
 	$config['path'] = "";
@@ -176,6 +177,6 @@ $config = array();
  * Versioning configuration
  */
 
-	// Version Number [1.2] do not change
-	$config['version'] = "1.2";
+	// Version Number [1.3] do not change
+	$config['version'] = "1.3";
 ?>

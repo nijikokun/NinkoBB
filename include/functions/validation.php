@@ -4,7 +4,8 @@
  * 
  * Includes functions for validation of specific items
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @subpackage functions
@@ -61,7 +62,7 @@ function alpha($string, $check = 'alpha')
 		break;
 		
 		case "url":
-			$regexp = "^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}'.'((:[0-9]{1,5})?\/.*)?$"; $modifier = "i"; $custom = true;
+			$regexp = "^(http|https):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}((:[0-9]{1,5})?\/.*)?$"; $modifier = "i"; $custom = true;
 		break;
 	}
 	
@@ -203,7 +204,9 @@ function age_limit($year, $required)
  */
 function mysql_clean($value)
 {
-	return mysql_real_escape_string($value);
+	global $database;
+	
+	return $database->escape($value);
 }
 
 /**
@@ -233,6 +236,8 @@ function field_clean($value, $strip_tags = false)
  */
 function clean_input($user_input)
 {
+	global $database;
+	
 	$user_input = trim($user_input);
 
 	// check to see if magic quotes are turned on
@@ -247,7 +252,7 @@ function clean_input($user_input)
 	// clean it
 	if(!is_numeric($user_input))
 	{
-		$user_input = mysql_clean($user_input);
+		$user_input = $database->escape($user_input);
 	}
 	
 	return($user_input);

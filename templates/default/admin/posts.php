@@ -21,13 +21,15 @@
 					<td align="center" class="item key"><?php echo lang('starter_c'); ?></td>
 					<td colspan="2" class="item key"><?php echo lang('actions'); ?></td>
 				</tr>
-<?php 
-foreach($posts as $row){ 
+<?php
+if(is_array($posts))
+{
+	foreach($posts as $row){ 
 		// reset
 		$status = "";
 		
 		// Trim subject
-		$content = character_limiter(trim(stripslashes($row['message'])), 25);
+		$content = substru(trim(stripslashes($row['message'])), 0, 25) . "&#8230;";
 		
 		// How many replies?
 		$replies = intval(get_replies($row['reply']));
@@ -70,12 +72,19 @@ foreach($posts as $row){
                         <a href="<?php echo $config['url_path']; ?>/admin.php?a=posts&delete=<?php echo $row['id']; ?>"><?php echo lang('delete'); ?></a>
                     </td>
                 </tr>
-<?php } ?>
+<?php } ?>				
 
 <?php if($post_pagination){ ?>
 				<tr>
 					<td colspan="6"><?php echo $post_pagination; ?></td>
 				</tr>
+<?php } ?>
+<?php } else { ?>
+                <tr>
+                    <td colspan="4">
+						<center>No posts!</center>
+                    </td>
+                </tr>
 <?php } ?>
 			</table>
     	</td>

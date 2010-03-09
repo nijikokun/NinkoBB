@@ -1,4 +1,4 @@
-<table border="0" cellpadding="1" cellspacing="0" class="post">
+<table border="0" cellpadding="1" cellspacing="0">
 	<tr>
 		<td valign="top" align="left" class="title">
     		<?php echo lang('viewing_profile'); ?> <?php echo $viewing['styled_name']; ?>
@@ -6,9 +6,10 @@
 	</tr>
 	<tr>
 		<td valign="top" align="left">
-			<table border="0" cellpadding="1" cellspacing="0">
+			<table border="0" cellpadding="0" cellspacing="0" class="uc">
 				<tr>
-					<td valign="top" align="center" class="form">
+					<td width="40%" valign="top" class="form">
+					<center>
 						<?php echo $viewing['styled_name']; ?><br />
 						<img src="<?php echo get_avatar($viewing['id']); ?>" alt="avatar" />
 <?php 
@@ -25,6 +26,7 @@ else if($viewing['admin'])
 	echo "<br /><span class='item'>Administrator</span>"; 
 } 
 ?>
+					</center><br />
 						<div class="title">
 							<div class="inner">
 								User Info
@@ -37,7 +39,7 @@ else if($viewing['admin'])
 							<?php echo lang('last_visit'); ?>: <?php echo date($config['date_format'], $viewing['last_seen']); ?>
 						</div>
 						<div class="post">
-							<?php echo lang('total_posts'); ?>: <?php echo forum_count(false, $viewing['id']); ?>
+							<?php echo lang('total_posts'); ?>: <?php echo forum_count(false, $viewing['id'], false); ?>
 						</div>
 <?php if($viewing['sex'] != ""){ ?>
 						<div class="post">
@@ -50,7 +52,7 @@ else if($viewing['admin'])
 						</div>
 <?php } ?>
 					</td>
-					<td valign="top" align="left" class="form">
+					<td valign="top" align="left">
 						<div class="title">
 							<div class="inner">
 								Instant Messengers
@@ -66,6 +68,7 @@ else if($viewing['admin'])
 							<?php echo lang('msn'); ?>: <?php echo parse($viewing['msn']); ?>
 						</div>
 <?php } ?>
+						<br />
 						<div class="title">
 							<div class="inner">
 								<?php echo lang('interests'); ?>

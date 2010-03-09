@@ -4,28 +4,40 @@
  * 
  * Admin control panel allowing users to manage the forum
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @subpackage setup
  */
 
-if (isset($_GET['step']))
-{
-	$step = $_GET['step'];
-}
-else
-{
-	$step = 0;
-}
+// Turning certain things in common off.
+$connect = true;
+$user_login = true;
+$load_plugins = true;
+
+// Include common
+include('../include/common.php');
+
+// What step are we on?
+if (isset($_GET['step'])){ $step = $_GET['step']; } else { $step = 0; }
 
 // Versions
 $prior = array(
 	1.0,
-	1.1
+	1.1,
+	1.2
 );
 
-$latest = 1.2;
+$latest = 1.3;
+
+if(isset($_GET['v']) && in_array(intval($_GET['v']), $prior) && is_numeric($_GET['v']))
+{
+	$current_version = $_GET['v'];
+}
+else
+{
+	$current_verison = $config['version'];
+}
 	
 header( 'Content-Type: text/html; charset=utf-8' );
 ?>
@@ -71,15 +83,19 @@ switch($step)
 	case 0:
 
 ?>
-<p>Hello there, this script will upgrade your current version of ninko <?php if(isset($_GET['v'])){ echo 'v' . $_GET['v'] . ' '; } ?>to the latest version.</p>
+<p>Hello there, this script will upgrade your current version of ninko v<?php echo $current_version; ?> to the latest version (v<?php echo $latest; ?>).</p>
 
 <p><strong>Some things it will do</strong></p>
 <ul>
 	<li>Update your current database with new information</li>
-	<li>No posts / users will be edited in this upgrade.</li>
+<?php if($current_version < 1.1){ ?>
+	<li>There will be editing of the core user table with this upgrade, please backup your database <u>before</u> continuing.</li>
+<?php } else { ?>
+	<li>No posts / users will be edited in this upgrade, <em>please</em> backup your database <u>before</u> continuing for safety.</li>
+<?php } ?>
 </ul>
 
-<p><a href="?step=1">Continue to upgrade &raquo;</a></p>
+<p><a href="?step=1<?php echo "&v={$current_version}"; ?>">Continue to upgrade &raquo;</a></p>
 <?php break; case 1: ?>
 <p>Updating...</p>
 
@@ -87,26 +103,18 @@ switch($step)
 	if (file_exists("../include/database.php"))
 	{
 		require_once('../include/database.php');
-		$cid = mysql_connect($config['host'], $config['user'], $config['pass']);
-		mysql_select_db($config['db']);
+		require_once('../include/connect.php');
 		
 		$schemas = array();
 		
-		// Prior versioning
 		if(!isset($_GET['v']) || !in_array(intval($_GET['v']), $prior) || !is_numeric($_GET['v']))
 		{
-			if (file_exists("../include/config.php"))
-			{
-				require_once("../include/config.php");
-				
-				$version_from_config = $config['version'];
-			}
 ?>
 <p>Hmm.. Had some trouble selecting what version of NinkoBB you are upgrading from..</p>
 
-<?php if(isset($config['version'])){ ?>
+<?php if(isset($current_version)){ ?>
 <p>
-	Your configuration says you are on: <a href="setup.php?step=1&v=<?php $config['version']; ?>"><b><?php $config['version']; ?></a></b>.<br /><br />
+	Your configuration says you are on: <a href="setup.php?step=1&v=<?php echo $current_version; ?>"><b><?php echo $current_version; ?></a></b>.<br /><br />
 	If this is incorrect select your version below:
 </p>
 <?php } ?>
@@ -114,7 +122,7 @@ switch($step)
 <p>
 	Select your version: 
 <?php foreach($prior as $version){ ?>
-	<a href="setup.php?step=1&v=<?php echo $version; ?>"><?php echo $version; ?>, </a>
+	<a href="setup.php?step=1&v=<?php echo $version; ?>"><?php echo $version; ?></a>, 
 <?php } ?>
 </p>
 <?php
@@ -124,7 +132,7 @@ switch($step)
 		// Integer value
 		$version = intval($_GET['v']);
 		
-		// Upgrading from 1.0 to 1.2
+		// 1.0 updates
 		if($_GET['v'] == 1.0)
 		{
 			$schema['Update <code>`config`</code>'] = "INSERT INTO `config` (`id` ,`key` ,`value`) VALUES (NULL , 'language', 'en'), (NULL , 'theme', 'default');";
@@ -134,14 +142,24 @@ switch($step)
 			$schema['Updating Configuration to <code>1.1</code>'] = "UPDATE `config` SET `value` = '1.1' WHERE `key` = 'version';";
 		}
 		
-		// Code for the LATEST upgrade, injects on all older upgrades.
-		if($_GET['v'] < $latest)
+		// 1.1 updates
+		if($_GET['v'] == 1.1)
 		{
 			$checks['directory'] = array("<code>plugins/captcha/</code> directory of ninko is ", '../plugins/captcha/', '0777');
 			$schema['Update <code>`config`</code> for subject length'] = "INSERT INTO `config` (`id` ,`key` ,`value`) VALUES (NULL , 'subject_minimum_length', '3'), (NULL , 'subject_max_length', '32');";
 			$schema['Update <code>`users`</code> with <code>`moderator`</code> setting'] = "ALTER TABLE `users` ADD `moderator` INT(1) NOT NULL DEFAULT '0' AFTER `admin`";
 			$schema['Update <code>`plugins`</code> install <code>`captcha`</code>'] = "INSERT IGNORE INTO `plugins` (`name`) VALUES ('captcha');";
 			$schema['Updating Configuration to <code>1.2</code>'] = "UPDATE `config` SET `value` = '1.2' WHERE `key` = 'version';";
+		}
+		
+		// Code for the LATEST upgrade, injects on all older upgrades.
+		if($_GET['v'] < $latest)
+		{
+			$schema['Update <code>`config`</code> for interests length'] = "INSERT INTO `config` (`id` ,`key` ,`value`) VALUES (NULL , 'interests_min_length', '3'), (NULL , 'interests_max_length', '1000');";
+			$schema['Create table <code>`categories`</code>'] = "CREATE TABLE IF NOT EXISTS `categories` (`id` int(255) AUTO_INCREMENT,`name` text,`order` int(255) NOT NULL DEFAULT '0',`aop` int(1) NOT NULL DEFAULT '0',`aot` int(1) NOT NULL DEFAULT '0',`extended` int(1) NOT NULL DEFAULT '0', PRIMARY KEY (`id`));";
+			$schema['Update <code>`forums`</code> with <code>`categories`</code>'] = "INSERT IGNORE INTO `categories` (`name`, `order`, `aot`) VALUES ('News', 0, 1),('General', 1, 0),('Other', 2, 0);";
+			$schema['Update <code>`plugins`</code> install <code>`BBCBar`</code>'] = "INSERT IGNORE INTO `plugins` (`name`) VALUES ('bbcbar');";
+			$schema['Updating Configuration to <code>1.3</code>'] = "UPDATE `config` SET `value` = '1.3' WHERE `key` = 'version';";
 		}
 		
 		if(is_array($checks) && isset($checks))
@@ -178,7 +196,7 @@ switch($step)
 			
 			foreach($schema as $doing => $sql)
 			{
-				mysql_query($sql) or die(mysql_error());
+				$database->query($sql) or die($database->error('Could not `'.$doing.'`', __FILE__, __LINE__));
 				
 				echo "<li>{$doing}</li>";
 			}

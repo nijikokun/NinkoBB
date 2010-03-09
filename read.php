@@ -4,7 +4,8 @@
  * 
  * Displays topics and posts based on passed url variables, and allows quick posting if enabled.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  */
@@ -62,6 +63,10 @@ if($_SESSION['admin'] || $_SESSION['moderator'])
 	}
 	else if(isset($_GET['delete']))
 	{
+		// Try getting that data!
+		$delete_data = topic($_GET['delete']);
+		
+		// Just do it
 		$result = delete_post($_GET['delete']);
 		
 		// User data
@@ -76,7 +81,37 @@ if($_SESSION['admin'] || $_SESSION['moderator'])
 		
 		if(!$error)
 		{
-			print_out(lang('success_deleted_post'), lang('redirecting'));
+			if($delete_data['reply'])
+			{
+				// How many replies?
+				$replies = intval(forum_count(false, $delete_data['reply'], false));
+
+				// Woooo~ Last id for redirecting~
+				if($config['show_first_post'])
+				{
+					$page_numbers = ((($replies-2) / $config['messages_per_topic']) - 1);
+				}
+				else
+				{
+					$page_numbers = ((($replies-1) / $config['messages_per_topic']) - 1);
+				}
+									
+				$n = ceil($page_numbers);
+									
+				// A little fixing
+				if ($n == -1)
+				{
+					$n = 0;
+				}
+				else
+				{
+					$n = '&page=' . abs($n);
+				}
+					
+				$path = $config['url_path'] . '/read.php?id=' . $delete_data['reply'] . $n;
+				
+				print_out(lang('success_deleted_post'), lang('redirecting'), $path);
+			}
 		}
 	}
 }
@@ -140,7 +175,37 @@ else if(isset($_GET['delete']))
 			
 			if(!$error)
 			{
-				print_out(lang('success_deleted_post'), lang('redirecting'));
+				if($delete_data['reply'])
+				{
+					// How many replies?
+					$replies = intval(forum_count(false, $delete_data['reply'], false));
+
+					// Woooo~ Last id for redirecting~
+					if($config['show_first_post'])
+					{
+						$page_numbers = ((($replies-2) / $config['messages_per_topic']) - 1);
+					}
+					else
+					{
+						$page_numbers = ((($replies-1) / $config['messages_per_topic']) - 1);
+					}
+									
+					$n = ceil($page_numbers);
+									
+					// A little fixing
+					if ($n == -1)
+					{
+						$n = 0;
+					}
+					else
+					{
+						$n = '&page=' . abs($n);
+					}
+					
+					$path = $config['url_path'] . '/read.php?id=' . $delete_data['reply'] . $n;
+				
+					print_out(lang('success_deleted_post'), lang('redirecting'), $path);
+				}
 			}
 		}
 	}
@@ -178,7 +243,7 @@ if(isset($_GET['id']))
 				$closed = 0;
 				
 				// Now for the fun part!
-				$data = post($_POST['qsubject'], $_POST['qcontent'], $_POST['reply'], $sticky, $closed);
+				$data = post(false, $_POST['qsubject'], $_POST['qcontent'], $_POST['reply'], $sticky, $closed);
 				
 				if(is_string($data) && !is_numeric($data))
 				{
@@ -206,6 +271,16 @@ if(isset($_GET['id']))
 			// First post
 			$first_post = fetch(false, false, intval($_GET['id']), 'time', 'ASC', 0, 1);
 			
+			// If we are showing the first post on every topic.
+			if($config['show_first_post'])
+			{
+				$start_on = 1;
+			}
+			else
+			{
+				$start_on = 0;
+			}
+			
 			// Check the numbers to fetch.
 			if(isset($start))
 			{
@@ -215,16 +290,16 @@ if(isset($_GET['id']))
 				}
 				else
 				{
-					$posts = fetch(false, false, intval($_GET['id']), 'reply`, `timestamp', 'ASC', 1, $config['messages_per_topic']);
+					$posts = fetch(false, false, intval($_GET['id']), 'reply`, `timestamp', 'ASC', $start_on, $config['messages_per_topic']);
 				}
 			}
 			else
 			{
-				$posts = fetch(false, false, intval($_GET['id']), 'reply`, `time', 'ASC', 1, $config['messages_per_topic']);
+				$posts = fetch(false, false, intval($_GET['id']), 'reply`, `time', 'ASC', $start_on, $config['messages_per_topic']);
 			}
 			
 			// Number of pages
-			$pagination = generate_pagination($topic_url, forum_count($topic['id']), $config['messages_per_topic'], $start);
+			$pagination = generate_pagination($topic_url, forum_count(false, $topic['id'], ''), $config['messages_per_topic'], $start);
 			
 		}
 		else
@@ -279,6 +354,9 @@ if($config['show_first_post'] || $page == 0)
 	// Templating & For quick reply.
 	$post = $topic;
 	
+	// Category
+	$category = category($post['category']);
+	
 	// The template
 	include($config['template_path'] . 'forum/post.php');
 
@@ -302,6 +380,9 @@ if(is_array($posts))
 		
 		// Not the starter
 		$starter = false;
+
+		// Category
+		$category = category($post['category']);
 		
 		// The template
 		include($config['template_path'] . 'forum/post.php');

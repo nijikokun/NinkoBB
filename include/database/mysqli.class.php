@@ -4,7 +4,8 @@
  * 
  * Database abstraction layer for mysqli without dependancies on PDO
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @subpackage database
@@ -119,7 +120,7 @@ class database
 		switch($type)
 		{
 			case "array":
-				return ($result) ? @mysql_fetch_array($result) : false;
+				return ($result) ? @mysqli_fetch_array($result) : false;
 			break;
 			
 			case "row":

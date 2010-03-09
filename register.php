@@ -4,7 +4,8 @@
  * 
  * Sign up form!
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  */
@@ -35,8 +36,16 @@ if(isset($_POST['submit']))
 		
 		if(!$error)
 		{
-			// Age conversion
-			$age = "{$_POST['month']}/{$_POST['day']}/{$_POST['year']}";
+			// If they want to validate age then ok!
+			if($config['age_validation'])
+			{
+				// Age conversion
+				$age = "{$_POST['month']}/{$_POST['day']}/{$_POST['year']}";
+			}
+			else
+			{
+				$age = false;
+			}
 			
 			// The results
 			$result = add_user($_POST['blatent'], $_POST['password'], $_POST['pagain'], $_POST['email'], $age);

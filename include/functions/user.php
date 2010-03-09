@@ -4,7 +4,8 @@
  * 
  * Functions that relate directly to the user
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @subpackage functions
@@ -92,7 +93,7 @@ function login($username, $email = false, $password)
 				// Set Cookie
 				if($config['allow_cookies'])
 				{
-					setcookie('user', "{$username}:{$password}", $config['cookie_save'], $config['cookie_domain']);
+					setcookie('login', "{$username}|{$password}", (time()+86400*365*2), $config['cookie_domain'], '.ninkobb.com');
 				}
 			}
 			else
@@ -170,7 +171,7 @@ function login($username, $email = false, $password)
 			// Set Cookie
 			if($config['allow_cookies'])
 			{
-				setcookie('login', "{$username}:{$password}", $config['cookie_save'], $config['cookie_domain']);
+				setcookie('login', "{$username}|{$password}", (time()+86400*365*2), $config['cookie_domain'], '.ninkobb.com');
 			}
 			
 			return true;
@@ -195,7 +196,7 @@ function login($username, $email = false, $password)
  * @param string $age mm/dd/yyyy
  * @return string|boolean
  */
-function add_user($username, $password, $password_again, $email, $age)
+function add_user($username, $password, $password_again, $email, $age = false)
 {
 	global $config, $database;
 	
@@ -273,6 +274,7 @@ function add_user($username, $password, $password_again, $email, $age)
 	$query = "SELECT * FROM `users` WHERE `email` = '{$email}' LIMIT 1";
 	$result = $database->query( $query );
 	
+	// Email exists
 	if($database->num($result) > 0)
 	{
 		return lang('error_email_used');
@@ -281,43 +283,33 @@ function add_user($username, $password, $password_again, $email, $age)
 	// Do we have to validate age?
 	if($config['age_validation'])
 	{
-		// Start grabbing age data~
-		$age_data = explode('/', $age);
-		
-		if(alpha($age_data[2], 'numeric'))
+		if($age)
 		{
-			if(strlen($age_data[2]) < 4)
+			// Start grabbing age data~
+			$age_data = explode('/', $age);
+			
+			if(alpha($age_data[2], 'numeric'))
 			{
-				return lang('error_year_invalid');
+				if(strlen($age_data[2]) < 4)
+				{
+					return lang('error_year_invalid');
+				}
+				
+				$old_enough = age_limit($age_data[2], $config['age_validation']);
+				
+				if(!$old_enough)
+				{
+					return lang_parse('error_year_young', array($config['age_validation']));
+				}
 			}
-			
-			$old_enough = age_limit($age_data[2], $config['age_validation']);
-			
-			if(!$old_enough)
+			else
 			{
-				return lang_parse('error_year_young', array($config['age_validation']));
+				return lang_parse('error_given_not_numeric', array(lang('year_c')));
 			}
 		}
 		else
 		{
-			return lang_parse('error_given_not_numeric', array(lang('year_c')));
-		}
-	}
-	else
-	{
-		// Just validate year.
-		$age_data = explode('/', $age);
-
-		if(alpha($age_data[2], 'numeric'))
-		{
-			if(strlen($age_data[2]) < 4)
-			{
-				return lang('error_year_invalid');
-			}
-		}
-		else
-		{
-			return lang_parse('error_given_not_numeric', array(lang('year_c')));
+			return lang('error_year_invalid');
 		}
 	}
 	
@@ -656,12 +648,12 @@ function user_data($id, $username = false, $current = false, $limit = 1)
 	else
 	{
 		// Select everything from the users table with the id given, limiting only one row.
-		$result = mysql_query( "SELECT * FROM `users` ORDER BY `username` ASC LIMIT {$limit}" );
+		$result = $database->query( "SELECT * FROM `users` ORDER BY `username` ASC LIMIT {$limit}" );
 			
 		// Was there a row returned?
-		if(mysql_num_rows($result) > 0)
+		if($database->num($result) > 0)
 		{
-			while($row = mysql_fetch_array($result))
+			while($row = $database->fetch($result))
 			{
 				$row ['styled_name'] = username_style($row);
 					
@@ -838,7 +830,7 @@ function update_user($id, $username = false, $field, $value)
 			$username = $database->escape($username);
 			
 			// Clean value, fields are clean as WE set them
-			$value = $database->escape(stripslashes($value));
+			$value = $database->escape($value);
 			
 			// Insert Query / Result
 			$result = $database->query( "UPDATE `users` SET `{$field}` = '{$value}' WHERE `username` = '{$username}' LIMIT 1" );
@@ -889,7 +881,7 @@ function update_user($id, $username = false, $field, $value)
  * @param integer $id used to retrieve the user data
  * @return string|boolean
  */
-function get_avatar($id)
+function get_avatar($id, $size = "100", $rating = "R")
 {
 	global $config;
 	
@@ -958,17 +950,47 @@ function get_avatar($id)
 		}
 		else
 		{
-			// Avatar folder path
-			$folder_path = $config['url_path'] . "/" . $config['avatar_folder_name'] . "/";
+			// Default to the gravatar
+			$gravatar = get_gravatar($data['email'], $size, $rating);
 			
 			// Default
-			return $folder_path . $config['default_avatar'] . $config['default_avatar_type'];
+			return $gravatar;
 		}
 	}
 	else
 	{
 		return false;
 	}
+}
+
+/**
+ * Fallback plan for when the user hasn't uploaded an avatar.
+ *
+ * @param string $email users email address, we will md5 this
+ * @param integer $size this is the size of the avatar, width only such as 50, not 50x50
+ * @param string $rating can be G, PG, R, OR X, default R
+ * @return string|boolean
+ */
+function get_gravatar($email, $size, $rating = "R")
+{
+	// The size of the image
+	$avatar_size = (is_numeric($size)) ? $size : '50';
+
+	// Minimum rating for your site
+	// Possible values (G, PG, R, X)
+	$avatar_rating = $rating;
+
+	// URL for Gravatar
+	$url = "http://www.gravatar.com/avatar/%s?s=%s&r=%s&d=identicon";
+
+	$avatar_url = sprintf(
+		$url, 
+		md5($email), 
+		$avatar_size,
+		$avatar_rating
+	);
+		
+	return $avatar_url;
 }
 
 /**

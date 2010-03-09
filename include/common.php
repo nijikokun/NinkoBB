@@ -4,7 +4,9 @@
  * 
  * Controls inclusions, configuration, and common data. The base file.
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @copyright (c) 2010 ANIGAIKU
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @package ninko
  */
  
@@ -26,6 +28,30 @@ define ( 'FUNCTIONS', 	$system_folder . '/functions/' );
 define ( 'DATABASE',	$system_folder . '/database/' );
 
 /**
+ * Include utf8 Dependencies
+ */
+require BASEPATH . "utf8/utf8" . EXT;
+require BASEPATH . "utf8/ucwords" . EXT;
+require BASEPATH . "utf8/trim" . EXT;
+
+// Turn off magic quotes
+if (get_magic_quotes_runtime())
+	set_magic_quotes_runtime(0);
+
+// Strip slashes from user defined variables
+if (get_magic_quotes_gpc())
+{
+	function stripslashes_array($array)
+	{
+		return is_array($array) ? array_map('stripslashes_array', $array) : stripslashes($array);
+	}
+
+	$_GET = stripslashes_array($_GET);
+	$_POST = stripslashes_array($_POST);
+	$_COOKIE = stripslashes_array($_COOKIE);
+}
+
+/**
  * Include configuration
  */
 include(BASEPATH . "config" . EXT);
@@ -38,7 +64,7 @@ if(file_exists(BASEPATH . "database" . EXT))
 	 */
 	include(BASEPATH . "database" . EXT);
 }
-else
+else if(!$installing)
 {
 	// send to setup.
 	header('location: setup/');
@@ -47,29 +73,43 @@ else
 /**
  * Include connection to database: MySQL
  */
-include(BASEPATH . "connect" . EXT);
-
-// Parse Config
-$result = $database->query("SELECT * FROM `config`");
-
-// Loop through the results and set the values.
-while($row = $database->fetch($result))
+if(!$connect)
 {
-	if($row['value'] == "" || !$row['value'])
+	include(BASEPATH . "connect" . EXT);
+
+	// Parse Config
+	$result = $database->query("SELECT * FROM `config`");
+
+	if(!$result && !$installing)
 	{
-		$config[$row['key']] = false;
+		// send to setup.
+		header('location: setup/');
 	}
-	else
+
+	// Loop through the results and set the values.
+	while($row = $database->fetch($result))
 	{
-		$config[$row['key']] = $row['value'];
+		if($row['value'] == "" || !$row['value'])
+		{
+			$config[$row['key']] = false;
+		}
+		else
+		{
+			$config[$row['key']] = $row['value'];
+		}
+	}
+
+	// Check version
+	if($config['version'] != '1.3')
+	{
+		// send to upgrade
+		header('location: setup/upgrade.php?v=' . $config['version']);
 	}
 }
 
-// Check version
-if($config['version'] != '1.2')
+if($installing && isset($_GET['lang']))
 {
-	// send to upgrade
-	header('location: setup/upgrade.php?v=' . $config['version']);
+	$config['language'] = $_GET['lang'];
 }
 
 /**
@@ -107,6 +147,8 @@ $functions = array(
 	'validation',
 	'hooks',
 	'user',
+	'parser',
+	'parser_bbcode',
 	'forum',
 	'admin'
 );
@@ -117,58 +159,69 @@ foreach($functions as $file)
 	include(FUNCTIONS . $file . EXT);
 }
 
-// Fetch plugins
-$plugins = plugins();
-	
-// Fetch loaded plugins
-$result = $database->query( "SELECT * FROM `plugins`" );
+// Bad Characters
+remove_bad_utf8();
 
-// Load plugins
-if($database->num($result) >= 1)
+// Initiate BBCode
+$parser = new Parser_BBCode();
+
+if(!$load_plugins)
 {
-	while($loading = $database->fetch($result))
+	// Fetch plugins
+	$plugins = plugins();
+		
+	// Fetch loaded plugins
+	$result = $database->query( "SELECT * FROM `plugins`" );
+
+	// Load plugins
+	if($database->num($result) >= 1)
 	{
-		foreach($plugins as $plugin)
+		while($loading = $database->fetch($result))
 		{
-			if($load_plugins) { continue; }
-			// don't even think of loading error'd plugins
-			if($plugin['error']) { continue; }
-			if(!isset($plugin['name'])) { continue; }
-			
-			if($loading['name'] == $plugin['plugin'])
+			foreach($plugins as $plugin)
 			{
-				// Load the plugin
-				include(BASEPATH . '../plugins/' . $plugin['file']);
+				// don't even think of loading error'd plugins
+				if($plugin['error']) { continue; }
+				if(!isset($plugin['name'])) { continue; }
 				
-				// That plugin has been loaded.
-				plugin_loaded($plugin['plugin']);
+				if($loading['name'] == $plugin['plugin'])
+				{
+					// Load the plugin
+					include(BASEPATH . '../plugins/' . $plugin['file']);
+					
+					// That plugin has been loaded.
+					plugin_loaded($plugin['plugin']);
+				}
 			}
 		}
 	}
 }
 
 
-/**
- * Include Sessions
- */
-include(BASEPATH . "sessions" . EXT);
-
-// Common hook
-load_hook('common');
-
-// Just incase
-unset($user_data);
-
-// Logged in?
-if($_SESSION['logged_in'])
+if(!$user_login)
 {
 	/**
-	 * Set user data
-	 * @global array $user_data
+	 * Include Sessions
 	 */
-	$user_data = user_data($_SESSION['user_id']);
-	
-	// Last seen update
-	update_user($user_data['id'], false, 'last_seen', time());
+	include(BASEPATH . "sessions" . EXT);
+
+	// Common hook
+	load_hook('common');
+
+	// Just incase
+	unset($user_data);
+
+	// Logged in?
+	if($_SESSION['logged_in'])
+	{
+		/**
+		 * Set user data
+		 * @global array $user_data
+		 */
+		$user_data = user_data($_SESSION['user_id']);
+		
+		// Last seen update
+		update_user($user_data['id'], false, 'last_seen', time());
+	}
 }
 ?>

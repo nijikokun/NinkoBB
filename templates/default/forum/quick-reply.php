@@ -1,37 +1,37 @@
-<?php load_hook('quickreply_before'); ?>
+
+<?php if($pagination){ ?>
+	<div class="container">
+		<h3 class='title'>Pages:</h3>
+		<div class='content'>
+			<?php echo $pagination; ?>
+		</div>
+	</div>
+<?php } ?>
+
+<?php load_hook('qr_before'); ?>
 <form action="<?php echo $topic_url; ?>" method="post">
 <input type="hidden" name="reply" value="<?php echo $topic['id']; ?>">
-<table border="0" cellspacing="2" cellpadding="5" id="qr" class="title">
-    <tr>
-        <td colspan="2">
-            <?php echo lang('quick_reply'); ?>
-        </td>
-    </tr>
-</table>
+<div class="container" id="qr">
+	<h3 class="title"><?php echo lang('quick_reply'); ?></h3>
+	
 <?php if ($error){ ?>
-<table border="0" cellspacing="2" cellpadding="5" class="error">
-    <tr>
-        <td colspan="2" class="text">
-            <strong><?php echo lang('error_c'); ?> </strong> <?php echo $error; ?>
-        </td>
-    </tr>
-</table>
+	<h3 class="error"><span class="text"><?php echo $error; ?></span></h3>
 <?php } ?>
-<table border="0" cellspacing="2" cellpadding="5" class="form">
-	<?php load_hook('quickreply_inside_before'); ?>
-    <tr>
-		<td valign="top">
-			<?php echo lang('subject'); ?>:<br />
-			<input type="text" name="qsubject" class="border" style="width: 93%" value="<?php echo switchs(field_clean($_POST['qsubject'])); ?>" /> <input name="post" value="<?php echo lang('reply'); ?>" type="submit" />
-		</td>
-    </tr>
-    <tr>
-		<td width="200px;" valign="top">
-			<?php echo lang('message'); ?>:<br />
-			<textarea name="qcontent" id="qcontent" class="border" style="width: 99.3%; height: 150px;"><?php echo switchs(field_clean($_POST['qcontent'])); ?></textarea>
-		</td>
-    </tr>
-	<?php load_hook('quickreply_inside_after'); ?>
-</table>
+<?php load_hook('qr_inside_before'); ?>
+	<div class="content">
+		<?php echo lang('subject_c'); ?>:<br />
+<?php load_hook('qr_subject_before'); ?>
+		<input type="text" name="qsubject" class="border" style="width: 88%" value="<?php echo switchs(field_clean($_POST['qsubject'])); ?>" /> <input name="post" value="<?php echo lang('reply'); ?>" type="submit" />
+<?php load_hook('qr_subject_after'); ?>
+	</div>
+	
+	<div class="content">	
+		<?php echo lang('message'); ?>:<br />
+<?php load_hook('qr_textarea_before'); ?>
+		<textarea name="qcontent" id="qcontent" class="border" style="width: 98.3%; height: 150px;"><?php echo switchs(field_clean($_POST['qcontent'])); ?></textarea>
+<?php load_hook('qr_textarea_after'); ?>
+	</div>
+<?php load_hook('qr_inside_after'); ?>
+</div>
 </form>
-<?php load_hook('quickreply_after'); ?>
+<?php load_hook('qr_after'); ?>

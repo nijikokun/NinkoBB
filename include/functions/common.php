@@ -4,7 +4,8 @@
  * 
  * Includes functions commonly used througout the entire script
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @subpackage functions
@@ -65,7 +66,9 @@ function print_out($title, $body, $redirect = true)
 {
 	global $config;
 	
-	echo "<div class='title'><div class='inner'>{$title}</div></div><p><div class='inner'>{$body}</div></p>";
+	echo "<div class='container'>";
+	echo "<div class='title'>{$title}</div><div class='errormessage'>{$body}</div>";
+	echo "</div>";
 	
 	if($redirect)
 	{
@@ -495,5 +498,28 @@ function generate_pagination($base_url, $num_items, $per_page, $start_item, $add
 	}
 
 	return $page_string;
+}
+
+/**
+ * Cleans everything of utf8 illegal characters.
+ * @return array
+ */
+function remove_bad_utf8()
+{
+	global $chars;
+
+	$chars = array("\0", "\xc2\xad", "\xcc\xb7", "\xcc\xb8", "\xe1\x85\x9F", "\xe1\x85\xA0", "\xe2\x80\x80", "\xe2\x80\x81", "\xe2\x80\x82", "\xe2\x80\x83", "\xe2\x80\x84", "\xe2\x80\x85", "\xe2\x80\x86", "\xe2\x80\x87", "\xe2\x80\x88", "\xe2\x80\x89", "\xe2\x80\x8a", "\xe2\x80\x8b", "\xe2\x80\x8e", "\xe2\x80\x8f", "\xe2\x80\xaa", "\xe2\x80\xab", "\xe2\x80\xac", "\xe2\x80\xad", "\xe2\x80\xae", "\xe2\x80\xaf", "\xe2\x81\x9f", "\xe3\x80\x80", "\xe3\x85\xa4", "\xef\xbb\xbf", "\xef\xbe\xa0", "\xef\xbf\xb9", "\xef\xbf\xba", "\xef\xbf\xbb", "\xE2\x80\x8D");
+
+	function removing_bad_utf8($array)
+	{
+		global $chars;
+		
+		return is_array($array) ? array_map('removing_bad_utf8', $array) : str_replace($chars, '', $array);
+	}
+
+	$_GET = removing_bad_utf8($_GET);
+	$_POST = removing_bad_utf8($_POST);
+	$_COOKIE = removing_bad_utf8($_COOKIE);
+	$_REQUEST = removing_bad_utf8($_REQUEST);
 }
 ?>

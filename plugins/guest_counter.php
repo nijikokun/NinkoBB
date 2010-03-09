@@ -86,6 +86,8 @@ function install_guest_counter()
  */
 function uninstall_guest_counter()
 {
+	global $database;
+	
 	// Delete
 	$database->query("DROP TABLE IF EXISTS `guests`") or die(mysql_error());
 }
@@ -151,7 +153,7 @@ function update_guests()
 		if($database->num($result) < 1)
 		{
 			// Insert them in there.
-			$database->query("INSERT INTO `guests` SET `visit` = '{$time}', `ip` = '{$host}', `type` = '{$type}'");
+			$database->query("INSERT INTO `guests` (`visit`,`ip`,`type`) VALUES ('{$time}', '{$host}', '{$type}')");
 		}
 		else
 		{

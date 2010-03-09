@@ -1,32 +1,17 @@
-		<td valign="top" align="left">
-			<table class="ac" width="100%" cellpadding="5" cellspacing="0">
-				<tr>
-					<td colspan="3" class="title"><?php echo lang('admin_cp'); ?> - <?php echo lang('manage_plugins'); ?></td>
-				</tr>
+		<h3 class="title admin"><?php echo lang('admin_cp'); ?> - <?php echo lang('manage_plugins'); ?></h3>
+
 <?php if ($error){ ?>
-                <tr>
-                    <td class="error" colspan="3">
-                        <?php echo $error; ?>
-                    </td>
-                </tr>
+		<h3 class="error"><div class="text"><?php echo $error; ?></div></h3>
 <?php } else if($success){ ?>
-                <tr>
-                    <td class="error" colspan="3">
-                        <?php echo $success; ?>
-                    </td>
-                </tr>
+		<h3 class="success"><div class="text"><?php echo $success; ?></div></h3>
 <?php } ?>
-				<tr>
-					<td class="item key"><?php echo lang('plugin_c'); ?></td>
-					<td colspan="2" class="item key"><?php echo lang('actions'); ?></td>
-				</tr>
 <?php 
 foreach($plugins as $plugin)
 { 
 	if(!is_array($plugin) || $plugin['name'] == "") { continue; }
 		
 	// Trim subject
-	$content = character_limiter(trim(stripslashes($plugin['description'])), 35);
+	$content = htmlspecialchars(character_limiter(trim($plugin['description']), 50), ENT_QUOTES, 'UTF-8', false);
 		
 	// Build topic url
 	$post_url = "{$config['url_path']}/read.php?id={$row['reply']}&page={$n}";
@@ -34,37 +19,46 @@ foreach($plugins as $plugin)
 	// Is the plugin active?
 	if(is_loaded($plugin['plugin']))
 	{
-		$style = "background-color: #90FF90;";
+		$status = true;
+	}
+	else
+	{
+		$status = false;
+	}
+	
+	if($plugin['url'] != "")
+	{
+		$plugin['author'] = "<a href='{$plugin['url']}'>{$plugin['author']}</a>";
 	}
 		
 	if(!isset($plugin['error']))
 	{
 ?>
-                <tr>
-                    <td nowrap="nowrap" width="80%" style="<?php echo $style; ?>" class="item"> 
-						<?php echo $plugin['name']; ?> - <span class="item"><?php echo $content; ?><br />
-						<small>Plugin by <?php echo $plugin['author']; ?></small>
-                    </td>
-                    <td nowrap="nowrap" align="center" style="<?php echo $style; ?>" class="item key">
-                        <a href="<?php echo $config['url_path']; ?>/admin.php?a=plugins&activate=<?php echo $plugin['plugin']; ?>"><?php echo lang('activate'); ?></a>
-                    </td>
-                    <td nowrap="nowrap" align="center" style="<?php echo $style; ?>" class="item key">
-                        <a href="<?php echo $config['url_path']; ?>/admin.php?a=plugins&deactivate=<?php echo $plugin['plugin']; ?>"><?php echo lang('deactivate'); ?></a>
-                    </td>
-                </tr>
+		<div class="plugin">
+			<span class="status">
+<?php if($status){ ?>
+				<a href="<?php echo $config['url_path']; ?>/admin.php?a=plugins&deactivate=<?php echo $plugin['plugin']; ?>" class="active"><?php echo lang('deactivate'); ?></a>
+<?php } else { ?>
+				<a href="<?php echo $config['url_path']; ?>/admin.php?a=plugins&activate=<?php echo $plugin['plugin']; ?>" class="unactive"><?php echo lang('activate'); ?></a>
+<?php } ?>
+			</span>
+			
+			<h3 class="name"><?php echo $plugin['name']; ?></h3>
+			<small><?php if($content){ echo $content; } ?> | Version: <?php echo $plugin['version']; ?> | Plugin by <?php echo $plugin['author']; ?></small>
+		</div>
 <?php
 	}
 	else
 	{
 ?>
-                <tr>
-                    <td nowrap="nowrap" width="80%" style="<?php echo $style; ?>" class="item"> 
-						<?php echo $plugin['name']; ?> <br />
-						<?php echo $plugin['error']; ?>
-                    </td>
-                    <td nowrap="nowrap" align="center" style="<?php echo $style; ?>" class="item key"></td>
-                    <td nowrap="nowrap" align="center" style="<?php echo $style; ?>" class="item key"></td>
-                </tr>
+		<div class="plugin">
+			<span class="status">
+				<?php echo $plugin['error']; ?>
+			</span>
+			
+			<h3 class="name"><?php echo $plugin['name']; ?></h3>
+			<small>Version: <?php echo $plugin['version']; ?> | Plugin by <?php echo $plugin['author']; ?></small>
+		</div>
 <?php
 	}
 }	

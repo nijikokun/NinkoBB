@@ -1,51 +1,37 @@
 <form method="post"  enctype="multipart/form-data">	
-	<table width="80%" cellpadding="5" align="center" cellspacing="0">
-		<tr>
-			<td colspan="2" class="title">
-					<?php echo lang('register_for'); ?> <?php echo $config['site_name']; ?>
-			</td>
-		</tr>
+<div class="container">
+	<h3 class="title"><?php echo lang('register_for'); ?> <?php echo $config['site_name']; ?></h3>
+
 <?php if($success){ ?>
-		<tr>
-			<td colspan="2" class="error">
-				<div class="text">
-					<?php if($config['email_validation']){ ?>
-						<?php lang('SUCCESS_REG_EMAIL_VALIDATE'); ?>
-					<?php } ?>
-					<?php echo $success; ?>
-				</div>
-			</td>
-		</tr>
+	<h3 class="success"><span class="text"><?php if($config['email_validation']){ ?><?php lang('SUCCESS_REG_EMAIL_VALIDATE'); ?><?php } ?><?php echo $success ?></span></h3>
 <?php } else if($error){ ?>
-		<tr>
-			<td colspan="2" class="error">
-				<div class="text"><?php echo $error; ?></div>
-			</td>
-		</tr>
+	<h3 class="error"><span class="text"><?php echo $error; ?></span></h3>
 <?php } ?>
+	<table width="80%" cellpadding="5" cellspacing="0">
 		<tr>
 			<td colspan="2" class="post">
 				<label for="blatent"><?php echo lang('register_username'); ?></label><br />
 				<input type="hidden" name="username" class="border" />
-				<input type="text" id="blatent" name="blatent" style="width: 99.3%;" class="border" value="<?php echo switchs(field_clean($_POST['blatent'])); ?>" />
+				<input type="text" id="blatent" name="blatent" style="width: 98.3%;" class="border" value="<?php echo switchs(field_clean($_POST['blatent'])); ?>" />
 			</td>
 		</tr>
 		<tr>
 			<td class="post">
 				<label for="password"><?php echo lang('password'); ?></label><br />
-				<input type="password" id="password" name="password" style="width: 99.3%;" class="border">
+				<input type="password" id="password" name="password" style="width: 96%;" class="border">
 			</td>
 			<td class="post">
 				<label for="pagain"><?php echo lang('password_again'); ?></label><br />
-				<input type="password" id="pagain" name="pagain" style="width: 98%;" class="border">
+				<input type="password" id="pagain" name="pagain" style="width: 96%;" class="border">
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2" class="post">
 				<label for="email"><?php echo lang('email'); ?></label><br />
-				<input type="text" id="email" name="email" style="width: 99.3%;" class="border" value="<?php echo switchs(field_clean($_POST['email'])); ?>" />
+				<input type="text" id="email" name="email" style="width: 98.3%;" class="border" value="<?php echo switchs(field_clean($_POST['email'])); ?>" />
 			</td>
 		</tr>
+<?php if($config['age_validation']){ ?>
 		<tr>
 			<td colspan="2" class="post">
 				<label for="year"><?php echo lang('birthday'); ?></label><br />
@@ -117,6 +103,7 @@ while($i <= 31)
 				<input type="text" id="year" name="year" style="padding: 3px; width:10%;" class="border" value="<?php echo switchs(field_clean($_POST['year'])); ?>">
 			</td>
 		</tr>
+<?php } ?>
 
 		<?php load_hook('registration_form'); ?>
 		

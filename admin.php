@@ -4,7 +4,8 @@
  * 
  * Admin control panel allowing users to manage the forum
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  */
@@ -35,6 +36,7 @@ switch($_GET['a'])
 	case "home": $action = "home"; break;
 	case "settings": $action = "settings"; break;
 	case "users": $action = "users"; break;
+	case "categories": $action = "categories"; break;
 	case "topics": $action = "topics"; break;
 	case "posts": $action = "posts"; break;
 	case "plugins": $action = "plugins"; break;
@@ -115,7 +117,7 @@ else if($action == "settings")
 			// Update the item only when its not already set to that inside of the config
 			if($setting != $config[$key])
 			{
-				update_config($key, mysql_clean(stripslashes($setting)));
+				update_config($key, $database->escape($setting));
 			}
 		}
 		
@@ -270,6 +272,8 @@ else if($action == "users")
 			$error = lang_parse('error_given_not_numeric', array(lang('id_c')));
 		}
 	}
+	
+	
 
 	/**
 	 * Include header
@@ -313,12 +317,12 @@ else if($action == "users")
 			}
 			else
 			{
-				$users = fetch(false, false, 0, 20);
+				$users = user_data(false, false, 0, 20);
 			}
 		}
 		else
 		{
-			$users = fetch(false, false, 0, 20);
+			$users = user_data(false, false, 0, 20);
 		}
 
 		// Topic count
@@ -347,6 +351,174 @@ else if($action == "users")
 	 */
 	include($config['template_path'] . "admin/users.php");
 }
+else if($action == "categories")
+{
+	if(isset($_GET['delete']))
+	{
+		// What method should we use?
+		if($_GET['method'] == "all")
+		{ 
+			$method = "all"; 
+		} 
+		else if(alpha($_GET['method'], 'numeric'))
+		{ 
+			$method = $_GET['method']; 
+		}
+		
+		$result = delete_category($_GET['delete'], $method);
+		
+		// Check to see if category was deleted or not
+		if($result === "INVALID_ID")
+		{
+			$error = lang_parse('error_invalid_given', array(lang('id')));
+		}
+		else if($result === "INVALID_METHOD")
+		{
+			$error = lang_parse('error_invalid_given', array(lang('method')));
+		}
+		else if($result === "INVALID_CATEGORY")
+		{
+			$error = lang_parse('error_invalid_given', array(lang('category')));
+		}
+		else if($result === "DELETING_CATEGORY")
+		{
+			$error = lang('error_deleting_cat');
+		}
+		else if($result == "DELETING_POSTS")
+		{
+			$error = lang('error_deleting_posts');
+		}
+		else if($result == "MOVING_POSTS")
+		{
+			$error = lang('error_moving_posts');
+		}
+		else if($result == "MOVED_POSTS")
+		{
+			$success = lang('success_deleted_cat') . ' & ' . lang('success_moved_posts');
+		}
+		else if($result == "DELETED_POSTS")
+		{
+			$success = lang('success_deleted_cat') . ' & ' . lang('success_deleted_posts');
+		}
+		
+		// No error or success its a success! or just weird.
+		if(!$error && !$success)
+		{
+			$success = lang('success_deleted_cat');
+		}
+	}
+	
+	if(isset($_POST['edit']))
+	{
+		$categories = category();
+		
+		// Update admin / moderator posting / topics
+		foreach($categories as $category)
+		{
+			if($_POST['aop'][$category['id']])
+			{
+				update_category($category['id'], 'aop', 1);
+			}
+			else
+			{
+				update_category($category['id'], 'aop', 0);
+			}
+			
+			if($_POST['aot'][$category['id']] == "on")
+			{
+				update_category($category['id'], 'aot', 1);
+			}
+			else
+			{
+				update_category($category['id'], 'aot', 0);
+			}
+			
+			if($_POST['expanded'][$category['id']] == "on")
+			{
+				update_category($category['id'], 'expanded', 1);
+			}
+			else
+			{
+				update_category($category['id'], 'expanded', 0);
+			}
+		}
+		
+		// Update order
+		foreach($_POST['order'] as $id => $order)
+		{
+			update_category($id, 'order', $order);
+		}
+		
+		// Update name
+		foreach($_POST['name'] as $id => $name)
+		{
+			update_category($id, 'name', $name);
+		}
+		
+		$success = lang('success_edited_cat');
+	}
+	
+	if(isset($_POST['add']))
+	{
+		// Convert checkboxes
+		if($_POST['aop'] == "on")
+		{
+			$_POST['aop'] = 1;
+		}
+		else
+		{
+			$_POST['aop'] = 0;
+		}
+		
+		if($_POST['aot'] == "on")
+		{
+			$_POST['aot'] = 1;
+		}
+		else
+		{
+			$_POST['aot'] = 0;
+		}
+		
+		// Results
+		$result = add_category($_POST['name'], $_POST['order'], $_POST['aop'], $_POST['aot']);
+		
+		// Check Results
+		if($result === "INVALID_ID")
+		{
+			$error = lang_parse('error_invalid_given', array(lang('id')));
+		}
+		else if(!$result)
+		{
+			$error = lang('error_adding_cat');
+		}
+		
+		// No errors?
+		if(!$error)
+		{
+			$success = lang('success_cat');
+		}
+	}
+	
+	/**
+	 * Include header
+	 */
+	include($config['template_path'] . "header.php");
+
+	/**
+	 * Include navigation
+	 */
+	include($config['template_path'] . "navigation.php");
+
+	/**
+	 * Include admin navigation
+	 */
+	include($config['template_path'] . "admin/navigation.php");
+	
+	/**
+	 * Include topics
+	 */
+	include($config['template_path'] . "admin/categories.php");
+}
 else if($action == "topics")
 {
 	if(isset($_GET['delete']))
@@ -371,6 +543,11 @@ else if($action == "topics")
 		{
 			$success = lang('success_deleted_topic');
 		}
+	}
+	
+	if(isset($_GET['update']))
+	{
+		update_topic($_GET['update'], 'category', $_GET['cat']);
 	}
 	
 	if(!$_GET['edit'])
@@ -408,7 +585,7 @@ else if($action == "topics")
 		}
 
 		// Topic count
-		$topic_count = forum_count('*', false, false, true);
+		$topic_count = forum_count(false, '*', '');
 
 		// Messages per page
 		$topics_pagination = generate_pagination($config['url_path'] . '/admin.php?a=topics', $topic_count, $config['messages_per_page'], $start);
@@ -491,7 +668,7 @@ else if($action == "posts")
 		}
 
 		// Topic count
-		$post_count = forum_count(false, false, false, false, true);
+		$post_count = forum_count(false, false, 'posts');
 
 		// Messages per page
 		$post_pagination = generate_pagination($config['url_path'] . '/admin.php?a=posts', $post_count, $config['messages_per_page'], $start);

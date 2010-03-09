@@ -4,7 +4,8 @@
  * 
  * Includes functions directed to language files
  * @author Nijiko Yonskai <me@nijikokun.com>
- * @version 1.2
+ * @version 1.3
+ * @lyric Why can't our bodies reset themselves? Won't you please reset me.
  * @copyright (c) 2010 ANIGAIKU
  * @package ninko
  * @subpackage functions
@@ -124,7 +125,15 @@ function languages($html = false)
 	}
 	else
 	{
-		return $languages;
+		foreach($languages as $language)
+		{
+			$language_ext = pathinfo($language, PATHINFO_EXTENSION);
+			$language_name = pathinfo($language, PATHINFO_FILENAME);
+			
+			$list[] = $language_name;
+		}
+		
+		return $list;
 	}
 }
 
